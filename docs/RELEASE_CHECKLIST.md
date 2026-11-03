@@ -15,9 +15,8 @@ Every branch push triggers the quality job:
 - TypeScript type-check
 - Unit tests
 - Production build
-- Pages artifact upload
 
-Pull requests targeting `main` also run the quality job. Feature-branch runs do not deploy.
+Pull requests targeting `main` also run the quality job. Only a push to `main` uploads the Pages artifact; feature-branch and pull-request runs do not create deployment artifacts or deploy.
 
 ## Production deployment
 
