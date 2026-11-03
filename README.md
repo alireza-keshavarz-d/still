@@ -4,32 +4,47 @@ A minimal, offline-first study-time tracker.
 
 Still records focused study time through explicit sessions and active intervals. Paused time is excluded. The first release is a locally persistent Progressive Web App; cross-device synchronization and analytics are planned separately.
 
-## Project status
+## Features
 
-The repository is being initialized. See [System Design](docs/SYSTEM_DESIGN.md) for the product and architecture decisions.
+- Live clock and daily accounting in \`Asia/Tehran\`.
+- Start, pause, resume, and stop study sessions.
+- Multiple independent sessions per day; one running session per local database.
+- Editable session names and notes with automatic local saving.
+- Interrupted-session recovery: choose whether to include time since the last persisted checkpoint.
+- Day-grouped history, including intervals split across Iran-local midnight.
+- IndexedDB persistence and offline PWA application shell.
+- Responsive dark interface for desktop and mobile browsers.
 
 ## Development
 
 Requirements: Node.js 22.12+ and npm.
 
-```sh
+\`\`\`sh
 npm install
 npm run dev
 npm run check
 npm test
 npm run build
-```
+\`\`\`
+
+## Architecture
+
+See [System Design](docs/SYSTEM_DESIGN.md) and [Contributing](CONTRIBUTING.md).
+
+The UI talks to a session repository. Dexie/IndexedDB stores sessions and active intervals. Duration is calculated from timestamps, not a counter persisted every second.
 
 ## Deployment
 
-The production deployment workflow publishes the static PWA to GitHub Pages on pushes to the repository's default branch (`main`). The repository's Pages source must be set to **GitHub Actions**, and the repository/account must support Pages for a private repository.
+GitHub Actions runs type-checking, tests, and a production build for every branch push and pull request. A successful push to \`main\` additionally deploys to GitHub Pages.
+
+Set the repository's Pages source to **GitHub Actions**. This repository is private; GitHub Pages availability for private repositories depends on the GitHub plan and repository settings. If Pages is unavailable, the same \`dist/\` output can be hosted on any static HTTPS host.
 
 ## Product decisions
 
-- Local-first persistence with IndexedDB.
-- One running session at a time; any number of paused or completed sessions.
+- Local-first persistence; no account or remote synchronization in the first release.
+- One running session per local database; any number of paused/completed sessions.
 - Sessions contain one or more active intervals.
-- The reporting timezone initially defaults to `Asia/Tehran`.
-- On recovery of an interrupted running session, the user decides whether to include time since the last checkpoint.
-- Every user change is saved automatically.
-- Analytics and remote synchronization are out of scope for the first release.
+- All timestamps are stored as epoch milliseconds; Iran time is used for reporting.
+- On recovery, the user decides whether time since the last persisted checkpoint counts.
+- Every user-facing change is automatically saved locally.
+- Analytics, remote sync, and cloud backups are deferred.
