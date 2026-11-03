@@ -42,6 +42,7 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [storagePersistent, setStoragePersistent] = useState<boolean | null>(null);
   const [recovery, setRecovery] = useState<RecoveryCandidate | null>(null);
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
 
@@ -71,6 +72,8 @@ function App() {
     let mounted = true;
     async function initialize() {
       try {
+        const persisted = await navigator.storage?.persist?.().catch(() => false) ?? false;
+        if (mounted) setStoragePersistent(persisted);
         const [nextSessions, nextIntervals, candidate] = await Promise.all([
           getAllSessions(), getAllIntervals(), getRecoveryCandidate()
         ]);
@@ -234,7 +237,6 @@ function App() {
   }, [currentSession?.id, currentSession?.status, title, note, recovery, loading, busy, view]);
 
   const todaySessions = dailyHistory.find((day) => day.date === todayKey)?.sessions.length ?? 0;
-  const todayProgress = Math.min(100, (todayTotal / (4 * 60 * 60 * 1000)) * 100);
   const clock = formatClock(now, TIME_ZONE);
 
   return (
@@ -325,7 +327,6 @@ function App() {
                 <div className="detail-heading"><span className="detail-icon"><MoonStar size={15} /></span><span>YOUR DAY</span></div>
                 <div className="today-total">{formatCompactDuration(todayTotal)}</div>
                 <div className="today-caption">FOCUSED TODAY · TEHRAN TIME</div>
-                <div className="today-progress-track"><span style={{ width: todayProgress + '%' }} /></div>
                 <div className="today-footnote"><span>{todaySessions} sessions</span><button onClick={() => setView('history')}>View history <ArrowRight size={13} /></button></div>
               </section>
             </div>
@@ -372,7 +373,9 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <span>STILL <i>·</i> FOCUS TIME</span><span><span className="footer-status-dot" /> SAVED ON THIS DEVICE</span><span>BUILT FOR YOUR ATTENTION</span>
+        <span>STILL <i>·</i> FOCUS TIME</span>
+        <span><span className="footer-status-dot" /> {storagePersistent ? 'PERSISTENT LOCAL STORAGE' : 'LOCAL STORAGE · KEEP A BACKUP'}</span>
+        <span>BUILT FOR YOUR ATTENTION</span>
       </footer>
 
       {recovery && (
