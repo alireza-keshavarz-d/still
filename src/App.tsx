@@ -346,7 +346,8 @@ function App() {
               <div className="history-days">
                 {dailyHistory.map((day) => (
                   <HistoryDay key={day.date} day={day} expandedId={expandedHistoryId}
-                    onSelect={(id) => setExpandedHistoryId((current) => current === id ? null : id)} />
+                    onSelect={(id) => setExpandedHistoryId((current) => current === id ? null : id)}
+                    onEdit={(id, nextTitle, nextNote) => perform(() => updateSessionDetails(id, nextTitle, nextNote))} />
                 ))}
               </div>
             )}
@@ -386,9 +387,10 @@ interface HistoryDayProps {
   day: DailyHistoryEntry;
   expandedId: string | null;
   onSelect: (id: string) => void;
+  onEdit: (id: string, title: string, note: string) => Promise<boolean>;
 }
 
-function HistoryDay({ day, expandedId, onSelect }: HistoryDayProps) {
+function HistoryDay({ day, expandedId, onSelect, onEdit }: HistoryDayProps) {
   return (
     <section className="history-day">
       <div className="history-day-heading">
@@ -396,26 +398,79 @@ function HistoryDay({ day, expandedId, onSelect }: HistoryDayProps) {
         <strong>{formatCompactDuration(day.durationMs)}</strong>
       </div>
       <div className="history-session-list">
-        {day.sessions.map(({ session, durationMs }) => {
-          const expanded = expandedId === session.id;
-          return (
-            <article className="history-session" key={day.date + '-' + session.id}>
-              <button className="history-session-main" onClick={() => onSelect(session.id)} aria-expanded={expanded}>
-                <span className={'history-session-mark ' + (session.status === 'running' ? 'mark-running' : '')}><CircleDot size={15} /></span>
-                <span className="history-session-copy"><strong>{session.title}</strong><span>{formatClock(session.startedAt, TIME_ZONE).slice(0, 5)} · {statusLabel(session.status)}</span></span>
-                <span className="history-session-duration">{formatCompactDuration(durationMs)}</span>
-                <ChevronRight className={expanded ? 'chevron-open' : ''} size={16} />
-              </button>
-              {expanded && <div className="history-session-details">
-                {session.note ? <p>{session.note}</p> : <span className="no-note">No note attached to this session.</span>}
-                <span>Started {formatClock(session.startedAt, TIME_ZONE)}{session.endedAt ? ' · Finished ' + formatClock(session.endedAt, TIME_ZONE) : ''}</span>
-              </div>}
-            </article>
-          );
-        })}
+        {day.sessions.map(({ session, durationMs }) => (
+          <HistorySessionRow
+            key={day.date + '-' + session.id}
+            session={session}
+            durationMs={durationMs}
+            expanded={expandedId === session.id}
+            onSelect={() => onSelect(session.id)}
+            onEdit={onEdit}
+          />
+        ))}
       </div>
     </section>
   );
 }
 
+interface HistorySessionRowProps {
+  session: StudySession;
+  durationMs: number;
+  expanded: boolean;
+  onSelect: () => void;
+  onEdit: HistoryDayProps['onEdit'];
+}
+
+function HistorySessionRow({ session, durationMs, expanded, onSelect, onEdit }: HistorySessionRowProps) {
+  const [titleDraft, setTitleDraft] = useState(session.title);
+  const [noteDraft, setNoteDraft] = useState(session.note);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+
+  useEffect(() => {
+    setTitleDraft(session.title);
+    setNoteDraft(session.note);
+  }, [session.id, session.title, session.note]);
+
+  useEffect(() => {
+    if (!expanded || (titleDraft === session.title && noteDraft === session.note)) return;
+    const timeout = window.setTimeout(() => {
+      setSaving(true);
+      setSaveError('');
+      void onEdit(session.id, titleDraft, noteDraft)
+        .then((success) => {
+          if (!success) setSaveError('Not saved. Please retry.');
+        })
+        .finally(() => setSaving(false));
+    }, 450);
+    return () => window.clearTimeout(timeout);
+  }, [expanded, titleDraft, noteDraft, session.id, session.title, session.note, onEdit]);
+
+  return (
+    <article className="history-session">
+      <button className="history-session-main" onClick={onSelect} aria-expanded={expanded}>
+        <span className={'history-session-mark ' + (session.status === 'running' ? 'mark-running' : '')}><CircleDot size={15} /></span>
+        <span className="history-session-copy">
+          <strong>{session.title}</strong>
+          <span>{formatClock(session.startedAt, TIME_ZONE).slice(0, 5)} · {statusLabel(session.status)}</span>
+        </span>
+        <span className="history-session-duration">{formatCompactDuration(durationMs)}</span>
+        <ChevronRight className={expanded ? 'chevron-open' : ''} size={16} />
+      </button>
+      {expanded && (
+        <div className="history-session-details">
+          <label className="field-label" htmlFor={'history-title-' + session.id}>SESSION NAME</label>
+          <input id={'history-title-' + session.id} className="title-input" value={titleDraft}
+            maxLength={80} onChange={(event) => setTitleDraft(event.target.value)} />
+          <label className="field-label note-label" htmlFor={'history-note-' + session.id}>NOTE</label>
+          <textarea id={'history-note-' + session.id} className="note-input" value={noteDraft}
+            maxLength={4000} rows={3} onChange={(event) => setNoteDraft(event.target.value)}
+            placeholder="Add a note about this session…" />
+          <span>Started {formatClock(session.startedAt, TIME_ZONE)}{session.endedAt ? ' · Finished ' + formatClock(session.endedAt, TIME_ZONE) : ''}</span>
+          <span className="history-save-status">{saveError || (saving ? 'Saving changes…' : 'Changes are saved automatically')}</span>
+        </div>
+      )}
+    </article>
+  );
+}
 export default App;
