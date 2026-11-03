@@ -139,5 +139,5 @@ export async function getAllSessions(): Promise<StudySession[]> {
 }
 
 export async function getAllIntervals(): Promise<StudyInterval[]> {
-  return database.intervals.toArray();
+  return database.intervals.orderBy('startedAt').toArray();
 }
