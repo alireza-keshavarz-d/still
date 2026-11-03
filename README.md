@@ -6,7 +6,7 @@ Still records focused study time through explicit sessions and active intervals.
 
 ## Features
 
-- Live clock and daily accounting in \`Asia/Tehran\`.
+- Live clock and daily accounting in `Asia/Tehran`.
 - Start, pause, resume, and stop study sessions.
 - Multiple independent sessions per day; one running session per local database.
 - Editable session names and notes with automatic local saving.
@@ -19,13 +19,13 @@ Still records focused study time through explicit sessions and active intervals.
 
 Requirements: Node.js 22.12+ and npm.
 
-\`\`\`sh
+```sh
 npm install
 npm run dev
 npm run check
 npm test
 npm run build
-\`\`\`
+```
 
 ## Architecture
 
@@ -35,9 +35,9 @@ The UI talks to a session repository. Dexie/IndexedDB stores sessions and active
 
 ## Deployment
 
-GitHub Actions runs type-checking, tests, and a production build for every branch push and pull request. A successful push to \`main\` additionally deploys to GitHub Pages.
+GitHub Actions runs type-checking, tests, and a production build for every branch push and pull request. A successful push to `main` additionally deploys to GitHub Pages.
 
-Set the repository's Pages source to **GitHub Actions**. This repository is private; GitHub Pages availability for private repositories depends on the GitHub plan and repository settings. If Pages is unavailable, the same \`dist/\` output can be hosted on any static HTTPS host.
+Set the repository's Pages source to **GitHub Actions**. This repository is private; GitHub Pages availability for private repositories depends on the GitHub plan and repository settings. If Pages is unavailable, the same `dist/` output can be hosted on any static HTTPS host.
 
 ## Product decisions
 

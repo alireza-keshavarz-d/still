@@ -165,7 +165,12 @@ function App() {
     }
   }
 
-  function startNewSession() {
+  async function startNewSession() {
+    if (busy) return;
+    if (currentSession && (title !== currentSession.title || note !== currentSession.note)) {
+      const saved = await persistSessionDetails(currentSession.id, title, note);
+      if (!saved) return;
+    }
     setSelectedId(null);
     setCreating(true);
     setTitle('Study session');
@@ -194,7 +199,12 @@ function App() {
 
   async function finishSession() {
     if (!currentSession) return;
-    const succeeded = await perform(() => stopSession(currentSession.id));
+    const session = currentSession;
+    const succeeded = await perform(async () => {
+      // Flush the latest text edits before the session is finalized.
+      await updateSessionDetails(session.id, title, note);
+      await stopSession(session.id);
+    });
     if (succeeded) {
       setSelectedId(null);
       setCreating(true);
@@ -315,10 +325,21 @@ function App() {
                 </div>
                 <label className="field-label" htmlFor="session-title">SESSION NAME</label>
                 <input id="session-title" className="title-input" value={title} maxLength={80}
-                  onChange={(event) => setTitle(event.target.value)} placeholder="What are you working on?" />
+                  onChange={(event) => setTitle(event.target.value)}
+                  onBlur={() => {
+                    if (currentSession && (title !== currentSession.title || note !== currentSession.note)) {
+                      void persistSessionDetails(currentSession.id, title, note);
+                    }
+                  }}
+                  placeholder="What are you working on?" />
                 <label className="field-label note-label" htmlFor="session-note">NOTE</label>
                 <textarea id="session-note" className="note-input" value={note} maxLength={4000}
                   onChange={(event) => setNote(event.target.value)}
+                  onBlur={() => {
+                    if (currentSession && (title !== currentSession.title || note !== currentSession.note)) {
+                      void persistSessionDetails(currentSession.id, title, note);
+                    }
+                  }}
                   placeholder="Capture a thought, a question, or where to continue…" rows={3} />
                 {!currentSession && <p className="field-footnote">Your title and note will be saved when you start.</p>}
               </section>
@@ -473,10 +494,20 @@ function HistorySessionRow({ session, durationMs, expanded, onSelect, onEdit }: 
         <div className="history-session-details">
           <label className="field-label" htmlFor={'history-title-' + session.id}>SESSION NAME</label>
           <input id={'history-title-' + session.id} className="title-input" value={titleDraft}
-            maxLength={80} onChange={(event) => setTitleDraft(event.target.value)} />
+            maxLength={80} onChange={(event) => setTitleDraft(event.target.value)}
+            onBlur={() => {
+              if (titleDraft !== session.title || noteDraft !== session.note) {
+                void onEdit(session.id, titleDraft, noteDraft);
+              }
+            }} />
           <label className="field-label note-label" htmlFor={'history-note-' + session.id}>NOTE</label>
           <textarea id={'history-note-' + session.id} className="note-input" value={noteDraft}
             maxLength={4000} rows={3} onChange={(event) => setNoteDraft(event.target.value)}
+            onBlur={() => {
+              if (titleDraft !== session.title || noteDraft !== session.note) {
+                void onEdit(session.id, titleDraft, noteDraft);
+              }
+            }}
             placeholder="Add a note about this session…" />
           <span>Started {formatClock(session.startedAt, TIME_ZONE)}{session.endedAt ? ' · Finished ' + formatClock(session.endedAt, TIME_ZONE) : ''}</span>
           <span className="history-save-status">{saveError || (saving ? 'Saving changes…' : 'Changes are saved automatically')}</span>
