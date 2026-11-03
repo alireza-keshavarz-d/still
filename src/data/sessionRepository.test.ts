@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { database } from './database';
 import {
   ActiveSessionExistsError, getAllIntervals, getAllSessions, getRecoveryCandidate,
-  pauseSession, recoverInterruptedSession, resumeSession, startSession, stopSession
+  pauseSession, recoverInterruptedSession, resumeSession, startSession, stopSession, updateSessionDetails
 } from './sessionRepository';
 
 describe('session lifecycle persistence', () => {
@@ -41,6 +41,23 @@ describe('session lifecycle persistence', () => {
     expect(intervals).toHaveLength(2);
     expect(intervals[1].startedAt).toBe(9_000);
     expect(intervals[1].endedAt).toBeNull();
+  });
+
+  it('does not resume a paused session while another session is running', async () => {
+    const first = await startSession('First', '', 1_000);
+    await pauseSession(first.id, 5_000);
+    await startSession('Second', '', 6_000);
+    await expect(resumeSession(first.id, 7_000)).rejects.toBeInstanceOf(ActiveSessionExistsError);
+  });
+
+  it('allows renaming and editing notes after a session is completed', async () => {
+    const session = await startSession('Draft title', '', 1_000);
+    await stopSession(session.id, 5_000);
+    await updateSessionDetails(session.id, 'Operating Systems', 'Review process scheduling', 6_000);
+    const stored = (await getAllSessions()).find((item) => item.id === session.id);
+    expect(stored?.title).toBe('Operating Systems');
+    expect(stored?.note).toBe('Review process scheduling');
+    expect(stored?.status).toBe('completed');
   });
 
   it('excludes unconfirmed time after the persisted checkpoint', async () => {
