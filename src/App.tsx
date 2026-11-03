@@ -56,6 +56,17 @@ function App() {
     setIntervals(nextIntervals);
   }, []);
 
+  const persistSessionDetails = useCallback(async (id: string, nextTitle: string, nextNote: string): Promise<boolean> => {
+    try {
+      await updateSessionDetails(id, nextTitle, nextNote);
+      await reload();
+      return true;
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Could not save session details.');
+      return false;
+    }
+  }, [reload]);
+
   useEffect(() => {
     let mounted = true;
     async function initialize() {
@@ -119,13 +130,11 @@ function App() {
     if (!currentSession || (title === currentSession.title && note === currentSession.note)) return;
     const timeout = window.setTimeout(() => {
       setSaving(true);
-      void updateSessionDetails(currentSession.id, title, note)
-        .then(reload)
-        .catch((caught: unknown) => setError(caught instanceof Error ? caught.message : 'Could not save session details.'))
+      void persistSessionDetails(currentSession.id, title, note)
         .finally(() => setSaving(false));
     }, 450);
     return () => window.clearTimeout(timeout);
-  }, [title, note, currentSession?.id]);
+  }, [title, note, currentSession?.id, persistSessionDetails]);
 
   const dailyHistory = useMemo(
     () => buildDailyHistory(sessions, intervals, TIME_ZONE, now),
@@ -347,7 +356,7 @@ function App() {
                 {dailyHistory.map((day) => (
                   <HistoryDay key={day.date} day={day} expandedId={expandedHistoryId}
                     onSelect={(id) => setExpandedHistoryId((current) => current === id ? null : id)}
-                    onEdit={(id, nextTitle, nextNote) => perform(() => updateSessionDetails(id, nextTitle, nextNote))} />
+                    onEdit={persistSessionDetails} />
                 ))}
               </div>
             )}
