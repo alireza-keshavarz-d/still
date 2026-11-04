@@ -14,7 +14,7 @@ export interface ActivityMatchResult {
 export function normalizeActivityName(value: string): string {
   return value
     .normalize('NFKC')
-    .toLocaleLowerCase()
+    .toLowerCase()
     .replace(/[’‘]/g, "'")
     .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .trim()
@@ -75,6 +75,7 @@ export function matchActivities(
   const available = activities.filter((activity) => activity.archivedAt === null);
   const exact = available.find((activity) => activity.normalizedName === query) ?? null;
   if (exact) return { exact, suggestions: [] };
+  if (query.length < 2) return { exact: null, suggestions: [] };
 
   const queryTokens = query.split(' ');
   const suggestions: ActivitySuggestion[] = [];
