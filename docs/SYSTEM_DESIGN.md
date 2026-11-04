@@ -108,7 +108,8 @@ A checkpoint is best-effort: browser/process termination can happen before a lif
 | Field | Type | Meaning |
 |---|---|---|
 | id | UUID string | Stable identifier |
-| title | string | User-visible name |
+| activityId | UUID string | Stable canonical activity reference |
+| title | string | Historical display-name snapshot; never rewritten by activity rename |
 | note | string | User-authored session note |
 | status | enum | running, paused, completed |
 | startedAt | epoch milliseconds | First start instant |
@@ -116,6 +117,16 @@ A checkpoint is best-effort: browser/process termination can happen before a lif
 | timezone | IANA timezone | Reporting timezone captured at creation |
 | createdAt | epoch milliseconds | Record creation |
 | updatedAt | epoch milliseconds | Last edit/transition |
+
+### StudyActivity
+
+| Field | Type | Meaning |
+|---|---|---|
+| id | UUID string | Stable activity identity |
+| name | string | Canonical display name |
+| normalizedName | string | Deterministic normalized unique key |
+| createdAt / updatedAt | epoch milliseconds | Record timestamps |
+| archivedAt | epoch milliseconds or null | Soft-archive timestamp |
 
 ### StudyInterval
 
@@ -140,6 +151,14 @@ All timestamps represent absolute instants (epoch milliseconds). The timezone is
 - Session duration is derived from intervals.
 - Title/note changes do not mutate time intervals.
 
+### Activity catalog and migration
+
+Activities are canonical categories; sessions remain independent timed records. The activity matcher is pure TypeScript and applies normalization, exact matching, prefix/token matching, and conservative Damerau-Levenshtein suggestions. Suggestions are never silently accepted. Unknown names can be created inline, and ambiguous matches require explicit selection.
+
+The activities table enforces a unique normalized name. Renames retain activity identity, while session title snapshots remain unchanged. Activities are archived rather than deleted so historical sessions keep valid references. Their normalized names remain reserved while archived, preventing duplicate activity identities and allowing restoration without collisions. Session activity changes update the activity ID and title snapshot in a transaction and do not mutate intervals.
+
+IndexedDB schema version 2 migrates existing sessions transactionally: equivalent normalized titles share one activity, each original title snapshot is preserved, and blank or unusable legacy titles point to an `Uncategorized` activity. Any failed migration rolls back with the schema transaction.
+
 ## 7. Calendar and timezone policy
 
 The default reporting timezone is `Asia/Tehran`, independent of the device timezone. The current clock, date headings, history grouping, and daily totals use the configured reporting timezone.
@@ -152,8 +171,9 @@ The first release captures the reporting timezone on session creation. A future 
 
 Dexie.js wraps IndexedDB. Initial schema:
 
-- `sessions`: session records; indexes for status, start, end, and update time.
+- `sessions`: session records; indexes for activity, status, start, end, and update time.
 - `intervals`: interval records; indexes for session, start, end, and checkpoint.
+- `activities`: canonical activity records with a unique normalized-name index, display-name index, creation time, and archive timestamp.
 
 All lifecycle transitions that touch both tables run in a single read/write transaction.
 
@@ -194,6 +214,9 @@ A naive last-write-wins merge is not sufficient for interval histories. Concurre
 
 - Pure unit tests for duration, formatting, and timezone/day splitting.
 - Repository tests against fake IndexedDB for lifecycle transactions, single-running-session invariant, and recovery.
+- IndexedDB version-upgrade integration tests for transactional activity migration and interval preservation.
+- React interaction tests for autocomplete selection, keyboard behavior, inline creation, and activity management.
+- V8 coverage thresholds for activity domain, migration, and repository modules, enforced in CI.
 - Component tests for user flows and keyboard behavior.
 - Browser E2E tests for persistence through reload, offline operation, and responsive layouts.
 - Manual install/recovery checks on iOS Safari, Android Chrome, desktop Chromium, and Firefox.

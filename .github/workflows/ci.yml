@@ -35,8 +35,8 @@ jobs:
       - name: Type-check
         run: npm run check
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests with coverage thresholds
+        run: npm run test:coverage
 
       - name: Build production PWA
         run: npm run build

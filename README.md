@@ -10,6 +10,8 @@ Still records focused study time through explicit sessions and active intervals.
 - Start, pause, resume, and stop study sessions.
 - Multiple independent sessions per day; one running session per local database.
 - Editable session names and notes with automatic local saving.
+- Canonical activity catalog with normalized autocomplete, typo suggestions, and inline activity creation.
+- Activity management in Settings, including rename, archive, and restore.
 - Interrupted-session recovery: choose whether to include time since the last persisted checkpoint.
 - Day-grouped history, including intervals split across Iran-local midnight.
 - IndexedDB persistence and offline PWA application shell.
@@ -24,20 +26,23 @@ npm install
 npm run dev
 npm run check
 npm test
+npm run test:coverage # includes enforced activity-core coverage thresholds
 npm run build
 ```
+
+The coverage command reports V8 coverage and enforces the activity-core thresholds used by CI.
 
 ## Architecture
 
 See [System Design](docs/SYSTEM_DESIGN.md) and [Contributing](CONTRIBUTING.md).
 
-The UI talks to a session repository. Dexie/IndexedDB stores sessions and active intervals. Duration is calculated from timestamps, not a counter persisted every second.
+The UI talks to a session repository. Dexie/IndexedDB stores sessions, active intervals, and canonical activities. Duration is calculated from timestamps, not a counter persisted every second.
 
 ## Deployment
 
 GitHub Actions runs type-checking, tests, and a production build for every branch push and pull request. A successful push to `main` additionally deploys to GitHub Pages.
 
-Set the repository's Pages source to **GitHub Actions**. This repository is private; GitHub Pages availability for private repositories depends on the GitHub plan and repository settings. If Pages is unavailable, the same `dist/` output can be hosted on any static HTTPS host.
+Set the repository's Pages source to **GitHub Actions**. This repository is public. GitHub Pages can be enabled in repository settings with GitHub Actions as the deployment source. If Pages is unavailable, the same `dist/` output can be hosted on any static HTTPS host.
 
 ## Product decisions
 

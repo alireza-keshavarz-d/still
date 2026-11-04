@@ -1,9 +1,11 @@
 import Dexie, { type Table } from 'dexie';
-import type { StudyInterval, StudySession } from '../domain/types';
+import type { StudyActivity, StudyInterval, StudySession } from '../domain/types';
+import { upgradeLegacyActivityRecords } from './activityMigration';
 
 class StillDatabase extends Dexie {
   sessions!: Table<StudySession, string>;
   intervals!: Table<StudyInterval, string>;
+  activities!: Table<StudyActivity, string>;
 
   constructor() {
     super('still-local');
@@ -11,6 +13,12 @@ class StillDatabase extends Dexie {
       sessions: 'id, status, startedAt, endedAt, updatedAt',
       intervals: 'id, sessionId, startedAt, endedAt, checkpointAt'
     });
+
+    this.version(2).stores({
+      sessions: 'id, activityId, status, startedAt, endedAt, updatedAt',
+      intervals: 'id, sessionId, startedAt, endedAt, checkpointAt',
+      activities: 'id, &normalizedName, name, createdAt, archivedAt'
+    }).upgrade(upgradeLegacyActivityRecords);
   }
 }
 
