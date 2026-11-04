@@ -30,6 +30,8 @@ npm run test:coverage # includes enforced activity-core coverage thresholds
 npm run build
 ```
 
+The coverage command reports V8 coverage and enforces the activity-core thresholds used by CI.
+
 ## Architecture
 
 See [System Design](docs/SYSTEM_DESIGN.md) and [Contributing](CONTRIBUTING.md).
