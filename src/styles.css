@@ -231,4 +231,5 @@ kbd { display: inline-grid; min-width: 51px; height: 24px; place-items: center; 
 .activity-edit-form input { flex: 1; }
 .settings-empty { padding: 18px; color: var(--muted); font-size: 11px; text-align: center; }
 @media (max-width: 520px) { .activity-create-row { align-items: stretch; flex-direction: column; } .activity-create-row .primary-button { width: 100%; } .activity-settings-tools { align-items: stretch; flex-direction: column; } .managed-activity { gap: 6px; padding: 8px; } .managed-activity button { padding: 7px 6px; } }
-\n@media (max-width: 520px) { .view-tab { flex: 1; min-width: 0; padding: 0 6px; gap: 5px; font-size: 10px; } .view-tab svg { width: 14px; } .soon-tag { display: none; } }\n
+
+@media (max-width: 520px) { .view-tab { flex: 1; min-width: 0; padding: 0 6px; gap: 5px; font-size: 10px; } .view-tab svg { width: 14px; } .soon-tag { display: none; } }
