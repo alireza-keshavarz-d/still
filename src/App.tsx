@@ -266,7 +266,7 @@ function App() {
       <main className="main-content">
         <div className="page-intro">
           <div>
-            <div className="eyebrow">YOUR PERSONAL TIMEKEEPER</div>
+            {/* <div className="eyebrow">YOUR PERSONAL TIMEKEEPER</div> */}
             <h1>{view === 'focus' ? 'Stay with the work.' : view === 'history' ? 'Look back, clearly.' : 'Insights, in time.'}</h1>
             <p>{view === 'focus' ? 'Give your attention to one thing at a time.' : view === 'history' ? 'Every focused interval, accounted for.' : 'A clearer picture of how you spend your focus.'}</p>
           </div>
@@ -294,12 +294,12 @@ function App() {
               </div>
               <div className="timer-center">
                 <div className="timer-digits" aria-label={'Study time ' + formatDuration(activeDuration)}>{formatDuration(activeDuration)}</div>
-                <div className="timer-label">TIME IN FOCUS</div>
-                <p className="timer-description">
+                {/* <div className="timer-label">TIME IN FOCUS</div> */}
+                {/* <p className="timer-description">
                   {currentSession?.status === 'running' ? 'Your attention is being counted.' :
                     currentSession?.status === 'paused' ? 'Paused time stays outside your total.' :
                     'Start when you are ready. The rest can wait.'}
-                </p>
+                </p> */}
               </div>
               <div className="timer-controls">
                 <button className="primary-button" disabled={busy} onClick={() => void toggleSession()}>
@@ -311,10 +311,10 @@ function App() {
                 {currentSession?.status === 'paused' && <button className="quiet-button" onClick={startNewSession}><Plus size={15} /> New session</button>}
               </div>
               <div className="keyboard-hint"><kbd>SPACE</kbd><span>pause or resume</span></div>
-              <div className="timer-bottom">
+              {/* <div className="timer-bottom">
                 <span><span className="bottom-dot" /> {currentSession?.status === 'running' ? 'Counting active time' : 'Only active intervals are counted'}</span>
                 <span>NO DISTRACTIONS, JUST TIME.</span>
-              </div>
+              </div> */}
             </div>
 
             <div className="detail-grid">
@@ -393,11 +393,11 @@ function App() {
         )}
       </main>
 
-      <footer className="app-footer">
+      {/* <footer className="app-footer">
         <span>STILL <i>·</i> FOCUS TIME</span>
         <span><span className="footer-status-dot" /> {storagePersistent ? 'PERSISTENT LOCAL STORAGE' : 'LOCAL STORAGE · KEEP A BACKUP'}</span>
         <span>BUILT FOR YOUR ATTENTION</span>
-      </footer>
+      </footer> */}
 
       {recovery && (
         <div className="modal-backdrop" role="presentation">
