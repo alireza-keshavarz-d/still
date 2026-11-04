@@ -21,7 +21,7 @@ describe('Tehran time accounting', () => {
     const start = Date.UTC(2026, 10, 3, 20, 0);
     const end = Date.UTC(2026, 10, 3, 21, 0);
     const session: StudySession = {
-      id: 's1', title: 'Study', note: '', status: 'completed',
+      id: 's1', activityId: 'a1', title: 'Study', note: '', status: 'completed',
       startedAt: start, endedAt: end, timezone: DEFAULT_TIME_ZONE, createdAt: 0, updatedAt: 0
     };
     const interval: StudyInterval = {
