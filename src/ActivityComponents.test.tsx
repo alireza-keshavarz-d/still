@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ActivityNameInput, ActivitySettings } from './ActivityComponents';
 import { database } from './data/database';
 import { createActivity, listActivities } from './data/activityRepository';
+import { getAllIntervals, getAllSessions, startSession } from './data/sessionRepository';
 
 function InputHarness() {
   const [value, setValue] = useState('');
@@ -90,6 +91,24 @@ describe('activity autocomplete interactions', () => {
     fireEvent.keyDown(input, { key: 'Escape' });
     expect(screen.queryByRole('listbox')).toBeNull();
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+
+  it('associates inline-created activities with an existing session transactionally', async () => {
+    const session = await startSession('Physics', '', 1_000);
+    const intervalsBefore = await getAllIntervals();
+    const onChange = vi.fn();
+    render(<ActivityNameInput value="Quantum Mechanics" onChange={onChange} sessionId={session.id} />);
+    const input = screen.getByRole('combobox');
+    fireEvent.focus(input);
+    fireEvent.click(await screen.findByRole('option', { name: /Create/ }));
+    await waitFor(async () => {
+      const [stored] = await getAllSessions();
+      expect(stored.title).toBe('Quantum Mechanics');
+      expect(stored.activityId).not.toBe('');
+    });
+    expect(await getAllIntervals()).toEqual(intervalsBefore);
+    expect(onChange).toHaveBeenCalledWith('Quantum Mechanics');
   });
 
   it('creates an unknown activity inline', async () => {
