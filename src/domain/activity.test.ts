@@ -97,6 +97,13 @@ describe('activity matching', () => {
     expect(matchActivities('db', catalog).suggestions).toEqual([]);
   });
 
+
+  it('uses a stricter edit-distance threshold for medium-length names', () => {
+    const result = matchActivities('physicx', [activity('physics', 'Physics')]);
+    expect(result.suggestions[0].kind).toBe('fuzzy');
+    expect(matchActivities('completely unrelated', catalog).suggestions).toEqual([]);
+  });
+
   it('does not return archived activities', () => {
     const archived = activity('archived', 'Operating Systems', 10);
     expect(matchActivities('operating systems', [archived]).exact).toBeNull();
