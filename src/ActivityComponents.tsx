@@ -18,7 +18,11 @@ export function ActivityNameInput({ value, onChange, disabled = false, sessionId
   const [error, setError] = useState('');
 
   async function refresh() {
-    setActivities(await listActivities());
+    try {
+      setActivities(await listActivities());
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Could not load activities.');
+    }
   }
 
   useEffect(() => { void refresh(); }, [sessionId]);
@@ -116,7 +120,11 @@ export function ActivitySettings() {
   const [busy, setBusy] = useState(false);
 
   async function refresh() {
-    setActivities(await listActivities(true));
+    try {
+      setActivities(await listActivities(true));
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Could not load activities.');
+    }
   }
   useEffect(() => { void refresh(); }, []);
 
