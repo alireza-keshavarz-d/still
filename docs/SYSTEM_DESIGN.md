@@ -108,7 +108,8 @@ A checkpoint is best-effort: browser/process termination can happen before a lif
 | Field | Type | Meaning |
 |---|---|---|
 | id | UUID string | Stable identifier |
-| title | string | User-visible name |
+| activityId | UUID string | Stable canonical activity reference |
+| title | string | Historical display-name snapshot; never rewritten by activity rename |
 | note | string | User-authored session note |
 | status | enum | running, paused, completed |
 | startedAt | epoch milliseconds | First start instant |
@@ -116,6 +117,16 @@ A checkpoint is best-effort: browser/process termination can happen before a lif
 | timezone | IANA timezone | Reporting timezone captured at creation |
 | createdAt | epoch milliseconds | Record creation |
 | updatedAt | epoch milliseconds | Last edit/transition |
+
+### StudyActivity
+
+| Field | Type | Meaning |
+|---|---|---|
+| id | UUID string | Stable activity identity |
+| name | string | Canonical display name |
+| normalizedName | string | Deterministic normalized unique key |
+| createdAt / updatedAt | epoch milliseconds | Record timestamps |
+| archivedAt | epoch milliseconds or null | Soft-archive timestamp |
 
 ### StudyInterval
 
@@ -139,6 +150,14 @@ All timestamps represent absolute instants (epoch milliseconds). The timezone is
 - There is at most one running session in a local database.
 - Session duration is derived from intervals.
 - Title/note changes do not mutate time intervals.
+
+### Activity catalog and migration
+
+Activities are canonical categories; sessions remain independent timed records. The activity matcher is pure TypeScript and applies normalization, exact matching, prefix/token matching, and conservative Damerau-Levenshtein suggestions. Suggestions are never silently accepted. Unknown names can be created inline, and ambiguous matches require explicit selection.
+
+The activities table enforces a unique normalized name. Renames retain activity identity, while session title snapshots remain unchanged. Activities are archived rather than deleted so historical sessions keep valid references. Session activity changes update the activity ID and title snapshot in a transaction and do not mutate intervals.
+
+IndexedDB schema version 2 migrates existing sessions transactionally: equivalent normalized titles share one activity, each original title snapshot is preserved, and blank legacy titles point to an `Uncategorized` activity. Any failed migration rolls back with the schema transaction.
 
 ## 7. Calendar and timezone policy
 
