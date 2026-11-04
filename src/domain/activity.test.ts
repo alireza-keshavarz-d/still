@@ -26,12 +26,12 @@ describe('activity name normalization', () => {
     ["Object–Oriented  Programming", 'object oriented programming'],
     ['Café', 'café'],
     ['  ', ''],
-    ['C++', 'c']
+    ['C++', 'c++']
   ])('normalizes %j', (input, expected) => {
     expect(normalizeActivityName(input)).toBe(expected);
   });
 
-  it('collapses whitespace without changing display spelling during validation', () => {
+  it('keeps meaningful programming-language symbols distinct', () => {\n    expect(normalizeActivityName('C#')).not.toBe(normalizeActivityName('C++'));\n  });\n\n  it('collapses whitespace without changing display spelling during validation', () => {
     expect(validateActivityName('  Linear   Algebra ')).toBe('Linear Algebra');
   });
 
