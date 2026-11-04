@@ -70,13 +70,14 @@ export async function restoreActivity(id: string, now = Date.now()): Promise<voi
 
 export async function updateSessionActivity(
   sessionId: string, activityName: string, now = Date.now()
-): Promise<void> {
-  await database.transaction('rw', database.sessions, database.activities, async () => {
+ ): Promise<StudyActivity> {
+  return database.transaction('rw', database.sessions, database.activities, async () => {
     const session = await database.sessions.get(sessionId);
     if (!session) throw new Error('Session does not exist.');
     const activity = await resolveActivityInTransaction(activityName, now);
     await database.sessions.update(sessionId, {
       activityId: activity.id, title: activity.name, updatedAt: now
     });
+    return activity;
   });
 }
