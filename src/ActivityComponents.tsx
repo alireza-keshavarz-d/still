@@ -49,6 +49,10 @@ export function ActivityNameInput({ value, onChange, disabled = false }: Activit
       setOpen(false);
       return;
     }
+    if (event.key === 'Tab' && options.length === 1) {
+      choose(options[0].activity);
+      return;
+    }
     if (event.key === 'ArrowDown' && optionCount > 0) {
       event.preventDefault();
       setOpen(true);
