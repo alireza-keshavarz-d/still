@@ -39,7 +39,7 @@ The UI talks to a session repository. Dexie/IndexedDB stores sessions and active
 
 GitHub Actions runs type-checking, tests, and a production build for every branch push and pull request. A successful push to `main` additionally deploys to GitHub Pages.
 
-Set the repository's Pages source to **GitHub Actions**. This repository is private; GitHub Pages availability for private repositories depends on the GitHub plan and repository settings. If Pages is unavailable, the same `dist/` output can be hosted on any static HTTPS host.
+Set the repository's Pages source to **GitHub Actions**. This repository is public. GitHub Pages can be enabled in repository settings with GitHub Actions as the deployment source. If Pages is unavailable, the same `dist/` output can be hosted on any static HTTPS host.
 
 ## Product decisions
 
