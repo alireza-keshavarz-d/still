@@ -91,4 +91,34 @@ describe('activity repository', () => {
     await archiveActivity(activity.id);
     await expect(createActivity('Physics')).rejects.toThrow(/archived/);
   });
+
+  it('keeps note edits attached to an archived historical activity', async () => {
+    const session = await startSession('Physics', '', 1_000);
+    const activity = (await listActivities())[0];
+    await archiveActivity(activity.id);
+    const intervalsBefore = await getAllIntervals();
+    await updateSessionDetails(session.id, 'Physics', 'Updated note', 2_000);
+    const [stored] = await getAllSessions();
+    expect(stored.activityId).toBe(activity.id);
+    expect(stored.title).toBe('Physics');
+    expect(stored.note).toBe('Updated note');
+    expect(await getAllIntervals()).toEqual(intervalsBefore);
+  });
+
+  it('moves a session to a different activity only when its title changes', async () => {
+    const session = await startSession('Physics', '', 1_000);
+    const original = (await listActivities())[0];
+    await updateSessionDetails(session.id, 'Chemistry', 'Note', 2_000);
+    const [stored] = await getAllSessions();
+    expect(stored.activityId).not.toBe(original.id);
+    expect(stored.title).toBe('Chemistry');
+    expect((await listActivities()).map((item) => item.name)).toEqual(['Chemistry', 'Physics']);
+  });
+
+  it('rejects renaming an archived activity until it is restored', async () => {
+    const activity = await createActivity('Physics');
+    await archiveActivity(activity.id);
+    await expect(renameActivity(activity.id, 'Natural Science')).rejects.toThrow(/Restore/);
+  });
+
 });
