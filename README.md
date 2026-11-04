@@ -33,7 +33,7 @@ npm run build
 
 See [System Design](docs/SYSTEM_DESIGN.md) and [Contributing](CONTRIBUTING.md).
 
-The UI talks to a session repository. Dexie/IndexedDB stores sessions and active intervals. Duration is calculated from timestamps, not a counter persisted every second.
+The UI talks to a session repository. Dexie/IndexedDB stores sessions, active intervals, and canonical activities. Duration is calculated from timestamps, not a counter persisted every second.
 
 ## Deployment
 
