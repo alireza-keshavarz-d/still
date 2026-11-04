@@ -25,7 +25,10 @@ Every push to a branch runs the CI workflow. Pull requests should target `main`;
 
 ## Design and architecture rules
 
-- Keep session lifecycle rules outside React components.
+- Keep session lifecycle rules and activity matching outside React components.
+- Keep activity/session persistence behind repositories; never query Dexie from UI components.
+- Preserve session title snapshots when canonical activities are renamed or archived.
+- Test schema migrations, normalized uniqueness, activity association, and interval immutability.
 - Access IndexedDB through repository functions; do not query Dexie directly from UI components.
 - Persist state transitions transactionally.
 - Derive elapsed time from interval timestamps, not incrementing counters.
