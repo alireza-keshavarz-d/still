@@ -16,7 +16,7 @@ export function normalizeActivityName(value: string): string {
     .normalize('NFKC')
     .toLowerCase()
     .replace(/[’‘]/g, "'")
-    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .replace(/[^\p{L}\p{N}+#]+/gu, ' ')
     .trim()
     .replace(/\s+/g, ' ');
 }
