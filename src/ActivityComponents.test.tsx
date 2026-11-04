@@ -128,6 +128,7 @@ describe('activity autocomplete interactions', () => {
 
 describe('activity settings interactions', () => {
   beforeEach(async () => {
+    vi.stubGlobal('crypto', { randomUUID } as Crypto);
     await database.delete();
     await database.open();
   });
@@ -135,6 +136,7 @@ describe('activity settings interactions', () => {
   afterEach(async () => {
     cleanup();
     await database.delete();
+    vi.unstubAllGlobals();
   });
 
   it('renames an activity from Settings', async () => {
