@@ -22,7 +22,7 @@ npm run test:coverage
 npm run build
 ```
 
-Every push to a branch runs the CI workflow. Pull requests should target `main`; production deployment runs only after a successful push to `main`.
+Every push to a branch runs the CI workflow. Pull requests should target `main` and must pass type-checking, the full test suite with activity-core coverage thresholds, and the production build before merge; production deployment runs only after a successful push to `main`.
 
 ## Design and architecture rules
 
