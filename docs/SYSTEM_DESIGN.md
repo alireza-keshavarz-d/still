@@ -155,7 +155,7 @@ All timestamps represent absolute instants (epoch milliseconds). The timezone is
 
 Activities are canonical categories; sessions remain independent timed records. The activity matcher is pure TypeScript and applies normalization, exact matching, prefix/token matching, and conservative Damerau-Levenshtein suggestions. Suggestions are never silently accepted. Unknown names can be created inline, and ambiguous matches require explicit selection.
 
-The activities table enforces a unique normalized name. Renames retain activity identity, while session title snapshots remain unchanged. Activities are archived rather than deleted so historical sessions keep valid references. Session activity changes update the activity ID and title snapshot in a transaction and do not mutate intervals.
+The activities table enforces a unique normalized name. Renames retain activity identity, while session title snapshots remain unchanged. Activities are archived rather than deleted so historical sessions keep valid references. Their normalized names remain reserved while archived, preventing duplicate activity identities and allowing restoration without collisions. Session activity changes update the activity ID and title snapshot in a transaction and do not mutate intervals.
 
 IndexedDB schema version 2 migrates existing sessions transactionally: equivalent normalized titles share one activity, each original title snapshot is preserved, and blank or unusable legacy titles point to an `Uncategorized` activity. Any failed migration rolls back with the schema transaction.
 
