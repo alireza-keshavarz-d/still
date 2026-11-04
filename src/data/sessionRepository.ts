@@ -1,6 +1,7 @@
 import { database } from './database';
 import type { RecoveryCandidate, StudyInterval, StudySession } from '../domain/types';
 import { DEFAULT_TIME_ZONE } from '../domain/types';
+import { resolveActivityInTransaction } from './activityRepository';
 
 export class ActiveSessionExistsError extends Error {
   constructor() {
@@ -26,6 +27,7 @@ async function assertNoRunningSession(): Promise<void> {
 export async function startSession(title: string, note = '', now = Date.now()): Promise<StudySession> {
   const session: StudySession = {
     id: createId(),
+    activityId: '',
     title: title.trim() || 'Study session',
     note,
     status: 'running',
@@ -39,8 +41,11 @@ export async function startSession(title: string, note = '', now = Date.now()): 
     id: createId(), sessionId: session.id, startedAt: now, endedAt: null, checkpointAt: now
   };
 
-  await database.transaction('rw', database.sessions, database.intervals, async () => {
+  await database.transaction('rw', database.sessions, database.intervals, database.activities, async () => {
     await assertNoRunningSession();
+    const activity = await resolveActivityInTransaction(session.title, now);
+    session.activityId = activity.id;
+    session.title = activity.name;
     await database.sessions.add(session);
     await database.intervals.add(interval);
   });
@@ -86,10 +91,13 @@ export async function stopSession(sessionId: string, now = Date.now()): Promise<
 export async function updateSessionDetails(
   sessionId: string, title: string, note: string, now = Date.now()
 ): Promise<void> {
-  const session = await database.sessions.get(sessionId);
-  if (!session) throw new Error('Session does not exist.');
-  await database.sessions.update(sessionId, {
-    title: title.trim() || 'Untitled session', note, updatedAt: now
+  await database.transaction('rw', database.sessions, database.activities, async () => {
+    const session = await database.sessions.get(sessionId);
+    if (!session) throw new Error('Session does not exist.');
+    const activity = await resolveActivityInTransaction(title || 'Untitled session', now);
+    await database.sessions.update(sessionId, {
+      activityId: activity.id, title: activity.name, note, updatedAt: now
+    });
   });
 }
 
