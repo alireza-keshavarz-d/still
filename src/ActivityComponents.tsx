@@ -79,7 +79,8 @@ export function ActivityNameInput({ value, onChange, disabled = false, sessionId
     <div className="activity-input-wrap">
       <input id="session-title" className="title-input" value={value} maxLength={80}
         disabled={disabled} autoComplete="off" role="combobox" aria-autocomplete="list"
-        aria-expanded={open && optionCount > 0} aria-controls="activity-options"\n        aria-activedescendant={open && optionCount > 0 ? "activity-option-" + activeIndex : undefined}
+        aria-expanded={open && optionCount > 0} aria-controls="activity-options"
+        aria-activedescendant={open && optionCount > 0 ? "activity-option-" + activeIndex : undefined}
         onFocus={() => setOpen(true)} onKeyDown={onKeyDown}
         onChange={(event) => { onChange(event.target.value); setActiveIndex(0); setOpen(true); setError(''); }}
         onBlur={() => window.setTimeout(() => setOpen(false), 120)}
