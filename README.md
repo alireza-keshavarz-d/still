@@ -10,6 +10,8 @@ Still records focused study time through explicit sessions and active intervals.
 - Start, pause, resume, and stop study sessions.
 - Multiple independent sessions per day; one running session per local database.
 - Editable session names and notes with automatic local saving.
+- Canonical activity catalog with normalized autocomplete, typo suggestions, and inline activity creation.
+- Activity management in Settings, including rename, archive, and restore.
 - Interrupted-session recovery: choose whether to include time since the last persisted checkpoint.
 - Day-grouped history, including intervals split across Iran-local midnight.
 - IndexedDB persistence and offline PWA application shell.
