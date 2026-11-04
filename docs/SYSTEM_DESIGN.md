@@ -157,7 +157,7 @@ Activities are canonical categories; sessions remain independent timed records. 
 
 The activities table enforces a unique normalized name. Renames retain activity identity, while session title snapshots remain unchanged. Activities are archived rather than deleted so historical sessions keep valid references. Session activity changes update the activity ID and title snapshot in a transaction and do not mutate intervals.
 
-IndexedDB schema version 2 migrates existing sessions transactionally: equivalent normalized titles share one activity, each original title snapshot is preserved, and blank legacy titles point to an `Uncategorized` activity. Any failed migration rolls back with the schema transaction.
+IndexedDB schema version 2 migrates existing sessions transactionally: equivalent normalized titles share one activity, each original title snapshot is preserved, and blank or unusable legacy titles point to an `Uncategorized` activity. Any failed migration rolls back with the schema transaction.
 
 ## 7. Calendar and timezone policy
 
@@ -171,8 +171,9 @@ The first release captures the reporting timezone on session creation. A future 
 
 Dexie.js wraps IndexedDB. Initial schema:
 
-- `sessions`: session records; indexes for status, start, end, and update time.
+- `sessions`: session records; indexes for activity, status, start, end, and update time.
 - `intervals`: interval records; indexes for session, start, end, and checkpoint.
+- `activities`: canonical activity records with a unique normalized-name index, display-name index, creation time, and archive timestamp.
 
 All lifecycle transitions that touch both tables run in a single read/write transaction.
 
