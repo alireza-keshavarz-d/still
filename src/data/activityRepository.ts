@@ -8,7 +8,7 @@ function createId(): string {
 
 /** Must be called inside a transaction that includes database.activities. */
 export async function resolveActivityInTransaction(name: string, now = Date.now()): Promise<StudyActivity> {
-  const displayName = validateActivityName(name.trim() || 'Study session');
+  const displayName = validateActivityName(name);
   const normalizedName = normalizeActivityName(displayName);
   const existing = await database.activities.where('normalizedName').equals(normalizedName).first();
   if (existing) {
