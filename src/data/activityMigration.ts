@@ -21,9 +21,10 @@ export function migrateLegacySessions(
 ): ActivityMigrationResult {
   const byName = new Map<string, StudyActivity>();
   const migratedSessions = sessions.map((session) => {
-    const displayName = typeof session.title === 'string' && session.title.trim()
+    const candidateName = typeof session.title === 'string' && session.title.trim()
       ? session.title.trim().replace(/\s+/g, ' ')
       : 'Uncategorized';
+    const displayName = normalizeActivityName(candidateName) ? candidateName : 'Uncategorized';
     const normalizedName = normalizeActivityName(displayName);
     let activity = byName.get(normalizedName);
     if (!activity) {
