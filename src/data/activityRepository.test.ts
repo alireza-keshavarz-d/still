@@ -121,4 +121,20 @@ describe('activity repository', () => {
     await expect(renameActivity(activity.id, 'Natural Science')).rejects.toThrow(/Restore/);
   });
 
+
+  it('keeps archive operations idempotent and rejects unknown activity IDs', async () => {
+    const activity = await createActivity('Physics');
+    await archiveActivity(activity.id, 20);
+    await archiveActivity(activity.id, 30);
+    expect((await listActivities(true))[0].updatedAt).toBe(20);
+    await expect(renameActivity('missing', 'Mathematics')).rejects.toThrow(/does not exist/);
+    await expect(archiveActivity('missing')).rejects.toThrow(/does not exist/);
+    await expect(restoreActivity('missing')).rejects.toThrow(/does not exist/);
+  });
+
+  it('does not create an activity when a session association fails', async () => {
+    await expect(updateSessionActivity('missing-session', 'Physics')).rejects.toThrow(/Session does not exist/);
+    expect(await listActivities()).toEqual([]);
+  });
+
 });
