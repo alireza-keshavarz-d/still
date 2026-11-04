@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { KeyboardEvent } from 'react';
-import { archiveActivity, createActivity, listActivities, renameActivity, restoreActivity } from './data/activityRepository';
+import { archiveActivity, createActivity, listActivities, renameActivity, restoreActivity, updateSessionActivity } from './data/activityRepository';
 import { matchActivities } from './domain/activity';
 import type { StudyActivity } from './domain/types';
 
@@ -8,9 +8,10 @@ interface ActivityNameInputProps {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  sessionId?: string;
 }
 
-export function ActivityNameInput({ value, onChange, disabled = false }: ActivityNameInputProps) {
+export function ActivityNameInput({ value, onChange, disabled = false, sessionId }: ActivityNameInputProps) {
   const [activities, setActivities] = useState<StudyActivity[]>([]);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -35,7 +36,9 @@ export function ActivityNameInput({ value, onChange, disabled = false }: Activit
 
   async function createFromInput() {
     try {
-      const activity = await createActivity(value);
+      const activity = sessionId
+        ? await updateSessionActivity(sessionId, value)
+        : await createActivity(value);
       await refresh();
       choose(activity);
     } catch (caught) {
