@@ -214,6 +214,9 @@ A naive last-write-wins merge is not sufficient for interval histories. Concurre
 
 - Pure unit tests for duration, formatting, and timezone/day splitting.
 - Repository tests against fake IndexedDB for lifecycle transactions, single-running-session invariant, and recovery.
+- IndexedDB version-upgrade integration tests for transactional activity migration and interval preservation.
+- React interaction tests for autocomplete selection, keyboard behavior, inline creation, and activity management.
+- V8 coverage thresholds for activity domain, migration, and repository modules, enforced in CI.
 - Component tests for user flows and keyboard behavior.
 - Browser E2E tests for persistence through reload, offline operation, and responsive layouts.
 - Manual install/recovery checks on iOS Safari, Android Chrome, desktop Chromium, and Firefox.
