@@ -323,7 +323,7 @@ function App() {
                   {currentSession && <span className="autosave"><Check size={12} /> {saving ? 'SAVING' : 'SAVED'}</span>}
                 </div>
                 <label className="field-label" htmlFor="session-title">SESSION NAME</label>
-                <ActivityNameInput value={title} onChange={setTitle} disabled={busy} />
+                <ActivityNameInput value={title} onChange={setTitle} disabled={busy} sessionId={currentSession?.id} />
                 <label className="field-label note-label" htmlFor="session-note">NOTE</label>
                 <textarea id="session-note" className="note-input" value={note} maxLength={4000}
                   onChange={(event) => setNote(event.target.value)}
