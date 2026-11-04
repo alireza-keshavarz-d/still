@@ -1,4 +1,5 @@
 import { normalizeActivityName } from '../domain/activity';
+import type { Transaction } from 'dexie';
 import type { StudyActivity } from '../domain/types';
 
 export interface LegacyStudySession {
@@ -38,4 +39,16 @@ export function migrateLegacySessions(
     return { ...session, activityId: activity.id };
   });
   return { activities: [...byName.values()], sessions: migratedSessions };
+}
+
+/** Applies the data part of the v1-to-v2 schema upgrade inside Dexie's versionchange transaction. */
+export async function upgradeLegacyActivityRecords(transaction: Transaction): Promise<void> {
+  const sessions = await transaction.table('sessions').toArray();
+  const migrated = migrateLegacySessions(sessions);
+  if (migrated.activities.length) {
+    await transaction.table('activities').bulkAdd(migrated.activities);
+  }
+  for (const session of migrated.sessions) {
+    await transaction.table('sessions').update(session.id, { activityId: session.activityId });
+  }
 }
