@@ -1,5 +1,7 @@
+import Dexie from 'dexie';
+import 'fake-indexeddb/auto';
 import { describe, expect, it } from 'vitest';
-import { migrateLegacySessions } from './activityMigration';
+import { migrateLegacySessions, upgradeLegacyActivityRecords } from './activityMigration';
 
 describe('legacy activity migration', () => {
   it('groups equivalent titles and preserves historical title snapshots', () => {
@@ -49,4 +51,48 @@ describe('legacy activity migration', () => {
   it('handles empty databases', () => {
     expect(migrateLegacySessions([], () => 'unused')).toEqual({ activities: [], sessions: [] });
   });
+
+  it('upgrades a real v1 IndexedDB schema transactionally and leaves intervals intact', async () => {
+    const name = 'still-migration-' + crypto.randomUUID();
+    const legacy = new Dexie(name);
+    legacy.version(1).stores({
+      sessions: 'id, status, startedAt, endedAt, updatedAt',
+      intervals: 'id, sessionId, startedAt, endedAt, checkpointAt'
+    });
+    await legacy.open();
+    const legacySessions = [
+      { id: 's1', title: 'Programming', note: '', status: 'completed', startedAt: 100, endedAt: 200, timezone: 'Asia/Tehran', createdAt: 100, updatedAt: 200 },
+      { id: 's2', title: ' programming ', note: '', status: 'completed', startedAt: 300, endedAt: 400, timezone: 'Asia/Tehran', createdAt: 300, updatedAt: 400 }
+    ];
+    const legacyIntervals = [
+      { id: 'i1', sessionId: 's1', startedAt: 100, endedAt: 200, checkpointAt: 200 }
+    ];
+    await legacy.table('sessions').bulkAdd(legacySessions);
+    await legacy.table('intervals').bulkAdd(legacyIntervals);
+    legacy.close();
+
+    const upgraded = new Dexie(name);
+    upgraded.version(1).stores({
+      sessions: 'id, status, startedAt, endedAt, updatedAt',
+      intervals: 'id, sessionId, startedAt, endedAt, checkpointAt'
+    });
+    upgraded.version(2).stores({
+      sessions: 'id, activityId, status, startedAt, endedAt, updatedAt',
+      intervals: 'id, sessionId, startedAt, endedAt, checkpointAt',
+      activities: 'id, &normalizedName, name, createdAt, archivedAt'
+    }).upgrade(upgradeLegacyActivityRecords);
+
+    try {
+      await upgraded.open();
+      const sessions = await upgraded.table('sessions').toArray();
+      const activities = await upgraded.table('activities').toArray();
+      expect(activities).toHaveLength(1);
+      expect(sessions[0].activityId).toBe(sessions[1].activityId);
+      expect(sessions.map((session) => session.title)).toEqual(['Programming', ' programming ']);
+      expect(await upgraded.table('intervals').toArray()).toEqual(legacyIntervals);
+    } finally {
+      await upgraded.delete();
+    }
+  });
+
 });
