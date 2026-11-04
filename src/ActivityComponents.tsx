@@ -21,7 +21,7 @@ export function ActivityNameInput({ value, onChange, disabled = false, sessionId
     setActivities(await listActivities());
   }
 
-  useEffect(() => { void refresh(); }, []);
+  useEffect(() => { void refresh(); }, [sessionId]);
 
   const matches = useMemo(() => matchActivities(value, activities), [value, activities]);
   const options = matches.suggestions;
