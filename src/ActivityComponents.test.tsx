@@ -56,6 +56,19 @@ describe('activity autocomplete interactions', () => {
     expect(onChange).toHaveBeenCalledWith('Operating System Design');
   });
 
+
+  it('does not accept an ambiguous suggestion with Tab', async () => {
+    await createActivity('Operating Systems');
+    await createActivity('Operating System Design');
+    const onChange = vi.fn();
+    render(<ActivityNameInput value="operating" onChange={onChange} />);
+    const input = screen.getByRole('combobox');
+    fireEvent.focus(input);
+    await screen.findByRole('listbox');
+    fireEvent.keyDown(input, { key: 'Tab' });
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it('accepts a single unambiguous suggestion with Tab', async () => {
     await createActivity('Physics');
     const onChange = vi.fn();
