@@ -26,7 +26,7 @@ npm install
 npm run dev
 npm run check
 npm test
-npm run test:coverage
+npm run test:coverage # includes enforced activity-core coverage thresholds
 npm run build
 ```
 
