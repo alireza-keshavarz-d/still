@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityNameInput, ActivitySettings } from './ActivityComponents';
 import {
   ArrowRight, CalendarDays, Check, ChevronRight, CircleDot, Clock3, History,
   MoonStar, Pause, Pencil, Play, Plus, RotateCcw, Sparkles, Square, Timer, X
@@ -15,7 +16,7 @@ import {
 import { DEFAULT_TIME_ZONE } from './domain/types';
 import type { DailyHistoryEntry, RecoveryCandidate, StudyInterval, StudySession } from './domain/types';
 
-type View = 'focus' | 'history' | 'insights';
+type View = 'focus' | 'history' | 'insights' | 'settings';
 const TIME_ZONE = DEFAULT_TIME_ZONE;
 const CHECKPOINT_INTERVAL_MS = 30_000;
 
@@ -264,8 +265,8 @@ function App() {
         <div className="page-intro">
           <div>
             {/* <div className="eyebrow">YOUR PERSONAL TIMEKEEPER</div> */}
-            <h1>{view === 'focus' ? 'Stay with the work.' : view === 'history' ? 'Look back, clearly.' : 'Insights, in time.'}</h1>
-            <p>{view === 'focus' ? 'Give your attention to one thing at a time.' : view === 'history' ? 'Every focused interval, accounted for.' : 'A clearer picture of how you spend your focus.'}</p>
+            <h1>{view === 'focus' ? 'Stay with the work.' : view === 'history' ? 'Look back, clearly.' : view === 'settings' ? 'Keep your catalog clear.' : 'Insights, in time.'}</h1>
+            <p>{view === 'focus' ? 'Give your attention to one thing at a time.' : view === 'history' ? 'Every focused interval, accounted for.' : view === 'settings' ? 'Manage the activities attached to your sessions.' : 'A clearer picture of how you spend your focus.'}</p>
           </div>
           <div className="today-date"><CalendarDays size={14} /> {dateLabel(now)}</div>
         </div>
@@ -274,6 +275,7 @@ function App() {
           <button className={view === 'focus' ? 'view-tab active' : 'view-tab'} onClick={() => setView('focus')}><Timer size={16} /> Focus</button>
           <button className={view === 'history' ? 'view-tab active' : 'view-tab'} onClick={() => setView('history')}><History size={16} /> History</button>
           <button className={view === 'insights' ? 'view-tab active' : 'view-tab'} onClick={() => setView('insights')}><Sparkles size={16} /> Insights <span className="soon-tag">LATER</span></button>
+          <button className={view === 'settings' ? 'view-tab active' : 'view-tab'} onClick={() => setView('settings')}><Pencil size={16} /> Settings</button>
         </nav>
 
         {error && <div className="error-banner" role="alert"><span>{error}</span><button aria-label="Dismiss error" onClick={() => setError('')}><X size={16} /></button></div>}
@@ -321,14 +323,7 @@ function App() {
                   {currentSession && <span className="autosave"><Check size={12} /> {saving ? 'SAVING' : 'SAVED'}</span>}
                 </div>
                 <label className="field-label" htmlFor="session-title">SESSION NAME</label>
-                <input id="session-title" className="title-input" value={title} maxLength={80}
-                  onChange={(event) => setTitle(event.target.value)}
-                  onBlur={() => {
-                    if (currentSession && (title !== currentSession.title || note !== currentSession.note)) {
-                      void persistSessionDetails(currentSession.id, title, note);
-                    }
-                  }}
-                  placeholder="What are you working on?" />
+                <ActivityNameInput value={title} onChange={setTitle} disabled={busy} />
                 <label className="field-label note-label" htmlFor="session-note">NOTE</label>
                 <textarea id="session-note" className="note-input" value={note} maxLength={4000}
                   onChange={(event) => setNote(event.target.value)}
@@ -380,6 +375,8 @@ function App() {
               </div>
             )}
           </section>
+        ) : view === 'settings' ? (
+          <ActivitySettings />
         ) : (
           <section className="insights-placeholder">
             <div className="insights-orb"><Sparkles size={25} /></div><div className="eyebrow">A FUTURE VIEW</div>
