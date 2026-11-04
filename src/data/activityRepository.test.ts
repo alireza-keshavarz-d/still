@@ -53,13 +53,13 @@ describe('activity repository', () => {
     expect((await listActivities())[0].archivedAt).toBeNull();
   });
 
-  it('rejects restoring an activity when its name has been reused', async () => {
+  it('restores an archived activity with its original stable identity', async () => {
     const original = await createActivity('Physics');
     await archiveActivity(original.id);
-    await database.activities.update(original.id, { normalizedName: 'physics (archived)' });
-    await createActivity('Physics');
-    await database.activities.update(original.id, { normalizedName: 'physics' });
-    await expect(restoreActivity(original.id)).rejects.toThrow(/already exists/);
+    await restoreActivity(original.id);
+    const [restored] = await listActivities();
+    expect(restored.id).toBe(original.id);
+    expect(restored.normalizedName).toBe('physics');
   });
 
   it('creates a missing activity when associating it with a session', async () => {
