@@ -5,7 +5,7 @@ import {
   archiveActivity, createActivity, listActivities, renameActivity, restoreActivity,
   updateSessionActivity
 } from './activityRepository';
-import { startSession, getAllIntervals, getAllSessions } from './sessionRepository';
+import { startSession, getAllIntervals, getAllSessions, updateSessionDetails } from './sessionRepository';
 
 describe('activity repository', () => {
   beforeEach(async () => {
