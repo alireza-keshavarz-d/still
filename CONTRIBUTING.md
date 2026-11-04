@@ -18,6 +18,7 @@ Run all quality checks:
 ```sh
 npm run check
 npm test
+npm run test:coverage
 npm run build
 ```
 
