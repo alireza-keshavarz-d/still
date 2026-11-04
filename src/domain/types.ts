@@ -2,8 +2,18 @@ export const DEFAULT_TIME_ZONE = 'Asia/Tehran';
 
 export type SessionStatus = 'running' | 'paused' | 'completed';
 
+export interface StudyActivity {
+  id: string;
+  name: string;
+  normalizedName: string;
+  createdAt: number;
+  updatedAt: number;
+  archivedAt: number | null;
+}
+
 export interface StudySession {
   id: string;
+  activityId: string;
   title: string;
   note: string;
   status: SessionStatus;
