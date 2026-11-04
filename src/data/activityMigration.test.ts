@@ -95,4 +95,35 @@ describe('legacy activity migration', () => {
     }
   });
 
+
+  it('upgrades an empty v1 database without creating placeholder activities', async () => {
+    const name = 'still-empty-migration-' + crypto.randomUUID();
+    const legacy = new Dexie(name);
+    legacy.version(1).stores({
+      sessions: 'id, status, startedAt, endedAt, updatedAt',
+      intervals: 'id, sessionId, startedAt, endedAt, checkpointAt'
+    });
+    await legacy.open();
+    legacy.close();
+
+    const upgraded = new Dexie(name);
+    upgraded.version(1).stores({
+      sessions: 'id, status, startedAt, endedAt, updatedAt',
+      intervals: 'id, sessionId, startedAt, endedAt, checkpointAt'
+    });
+    upgraded.version(2).stores({
+      sessions: 'id, activityId, status, startedAt, endedAt, updatedAt',
+      intervals: 'id, sessionId, startedAt, endedAt, checkpointAt',
+      activities: 'id, &normalizedName, name, createdAt, archivedAt'
+    }).upgrade(upgradeLegacyActivityRecords);
+
+    try {
+      await upgraded.open();
+      expect(await upgraded.table('activities').toArray()).toEqual([]);
+      expect(await upgraded.table('sessions').toArray()).toEqual([]);
+    } finally {
+      await upgraded.delete();
+    }
+  });
+
 });
