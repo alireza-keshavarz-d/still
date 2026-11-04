@@ -111,8 +111,8 @@ describe('activity matching', () => {
   });
 
   it('uses stable alphabetical tie-breaking', () => {
-    const values = [activity('z', 'Physics'), activity('a', 'Philosophy')];
+    const values = [activity('z', 'Physics'), activity('a', 'Phonics')];
     expect(matchActivities('ph', values).suggestions.map((item) => item.activity.name))
-      .toEqual(['Philosophy', 'Physics']);
+      .toEqual(['Phonics', 'Physics']);
   });
 });
