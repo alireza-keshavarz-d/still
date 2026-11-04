@@ -94,8 +94,8 @@ export async function updateSessionDetails(
   await database.transaction('rw', database.sessions, database.activities, async () => {
     const session = await database.sessions.get(sessionId);
     if (!session) throw new Error('Session does not exist.');
+    const changedTitle = title !== session.title;
     const nextTitle = title.trim() || 'Untitled session';
-    const changedTitle = nextTitle !== session.title;
     const activity = changedTitle
       ? await resolveActivityInTransaction(nextTitle, now)
       : null;
