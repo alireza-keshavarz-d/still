@@ -79,7 +79,7 @@ export function ActivityNameInput({ value, onChange, disabled = false, sessionId
     <div className="activity-input-wrap">
       <input id="session-title" className="title-input" value={value} maxLength={80}
         disabled={disabled} autoComplete="off" role="combobox" aria-autocomplete="list"
-        aria-expanded={open && optionCount > 0} aria-controls="activity-options"
+        aria-expanded={open && optionCount > 0} aria-controls="activity-options"\n        aria-activedescendant={open && optionCount > 0 ? "activity-option-" + activeIndex : undefined}
         onFocus={() => setOpen(true)} onKeyDown={onKeyDown}
         onChange={(event) => { onChange(event.target.value); setActiveIndex(0); setOpen(true); setError(''); }}
         onBlur={() => window.setTimeout(() => setOpen(false), 120)}
@@ -87,7 +87,7 @@ export function ActivityNameInput({ value, onChange, disabled = false, sessionId
       {open && optionCount > 0 && (
         <div id="activity-options" className="activity-options" role="listbox" aria-label="Activity suggestions">
           {options.map(({ activity, kind }, index) => (
-            <button type="button" role="option" aria-selected={activeIndex === index}
+            <button type="button" id={"activity-option-" + index} role="option" aria-selected={activeIndex === index}
               className={activeIndex === index ? 'activity-option active' : 'activity-option'}
               key={activity.id} onMouseDown={(event) => event.preventDefault()}
               onClick={() => choose(activity)}>
@@ -95,7 +95,7 @@ export function ActivityNameInput({ value, onChange, disabled = false, sessionId
             </button>
           ))}
           {showCreate && (
-            <button type="button" role="option" aria-selected={activeIndex === options.length}
+            <button type="button" id={"activity-option-" + options.length} role="option" aria-selected={activeIndex === options.length}
               className={activeIndex === options.length ? 'activity-option activity-create active' : 'activity-option activity-create'}
               onMouseDown={(event) => event.preventDefault()} onClick={() => void createFromInput()}>
               <span>Create “{value.trim()}”</span><small>New activity</small>
