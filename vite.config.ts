@@ -31,6 +31,12 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.{ts,tsx}'],
-    clearMocks: true
+    clearMocks: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/domain/activity.ts', 'src/data/activityMigration.ts', 'src/data/activityRepository.ts'],
+      thresholds: { lines: 80, functions: 80, branches: 70, statements: 80 }
+    }
   }
 });
