@@ -1,5 +1,5 @@
-import Dexie from 'dexie';
 import 'fake-indexeddb/auto';
+import Dexie from 'dexie';
 import { describe, expect, it } from 'vitest';
 import { migrateLegacySessions, upgradeLegacyActivityRecords } from './activityMigration';
 
