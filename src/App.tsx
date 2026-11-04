@@ -42,7 +42,6 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [storagePersistent, setStoragePersistent] = useState<boolean | null>(null);
   const [recovery, setRecovery] = useState<RecoveryCandidate | null>(null);
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
 
@@ -72,8 +71,6 @@ function App() {
     let mounted = true;
     async function initialize() {
       try {
-        const persisted = await navigator.storage?.persist?.().catch(() => false) ?? false;
-        if (mounted) setStoragePersistent(persisted);
         const [nextSessions, nextIntervals, candidate] = await Promise.all([
           getAllSessions(), getAllIntervals(), getRecoveryCandidate()
         ]);
