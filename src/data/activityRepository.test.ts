@@ -78,7 +78,7 @@ describe('activity repository', () => {
   });
 
   it('preserves historical session title when an activity is renamed', async () => {
-    const session = await startSession('Calculus', '', 1_000);
+    await startSession('Calculus', '', 1_000);
     const activity = (await listActivities())[0];
     await renameActivity(activity.id, 'Mathematics', 2_000);
     const [stored] = await getAllSessions();
