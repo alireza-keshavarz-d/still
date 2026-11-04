@@ -40,6 +40,12 @@ describe('legacy activity migration', () => {
     expect(result.sessions[0].activityId).not.toBe(result.sessions[1].activityId);
   });
 
+  it('maps punctuation-only legacy titles to Uncategorized', () => {
+    const result = migrateLegacySessions([{ id: '1', title: '!!!' }], () => 'activity');
+    expect(result.activities[0].name).toBe('Uncategorized');
+    expect(result.sessions[0].title).toBe('!!!');
+  });
+
   it('handles empty databases', () => {
     expect(migrateLegacySessions([], () => 'unused')).toEqual({ activities: [], sessions: [] });
   });
