@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import 'fake-indexeddb/auto';
 import { useState } from 'react';
+import { randomUUID } from 'node:crypto';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ActivityNameInput, ActivitySettings } from './ActivityComponents';
@@ -15,6 +16,7 @@ function InputHarness() {
 
 describe('activity autocomplete interactions', () => {
   beforeEach(async () => {
+    vi.stubGlobal('crypto', { randomUUID } as Crypto);
     await database.delete();
     await database.open();
   });
@@ -22,6 +24,7 @@ describe('activity autocomplete interactions', () => {
   afterEach(async () => {
     cleanup();
     await database.delete();
+    vi.unstubAllGlobals();
   });
 
   it('recognizes an exact normalized match without opening suggestions', async () => {
