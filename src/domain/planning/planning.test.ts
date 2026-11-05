@@ -79,6 +79,17 @@ describe('dependency scheduling and transitions', () => {
     const recalculated = skipPlannedSession(items, 'b', 'recalculate', 50);
     expect(recalculated.find(x => x.id === 'c')?.predecessorId).toBe('a');
   });
+  it('bypasses already skipped predecessors when removing an activity from a chain', () => {
+    const items = [
+      item('a'),
+      item('b', { status: 'skipped', predecessorId: 'a', schedulingMode: 'relative', intervalDays: 2 }),
+      item('c', { predecessorId: 'b', schedulingMode: 'relative', intervalDays: 2 }),
+      item('d', { predecessorId: 'c', schedulingMode: 'relative', intervalDays: 1 })
+    ];
+    const result = skipPlannedSession(items, 'c', 'recalculate', 100);
+    expect(result.find(x => x.id === 'd')?.predecessorId).toBe('a');
+  });
+
   it('reschedules selected item and optionally recalculates descendants', () => {
     const items = [item('a'), item('b', { predecessorId: 'a', schedulingMode: 'relative', intervalDays: 3 })];
     expect(reschedulePlannedSession(items, 'a', '2026-11-10', false).find(x => x.id === 'b')?.scheduledDate).toBe('2026-11-01');
