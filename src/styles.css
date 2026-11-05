@@ -251,3 +251,266 @@ kbd { display: inline-grid; min-width: 51px; height: 24px; place-items: center; 
 
 .calendar-next-step{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px;padding:11px 13px;border:1px solid #34473a;border-radius:9px;background:#17231a;color:#9eafa1;font-size:10px}.calendar-next-step strong{color:#d8e7da;font-weight:550}.calendar-next-step button{padding:7px 9px;border:1px solid #49604d;border-radius:7px;background:#223228;color:#c7ddca;font-size:9px;cursor:pointer}
 .sequence-row-actions{display:flex;align-items:center;gap:3px}.sequence-row-actions .sequence-remove{padding:7px 5px}.sequence-row-actions button:disabled{opacity:.35;cursor:default}
+
+/* --------------------------------------------------------------------------
+   Still / Digital Study Culture
+   Expressive editorial surfaces, playful accents, and a quiet timer hierarchy.
+   Kept CSS-only so the offline-first app gains no runtime or network dependency.
+   -------------------------------------------------------------------------- */
+:root {
+  color-scheme: dark;
+  --bg: #10100f;
+  --surface: #191917;
+  --line: #393832;
+  --soft-line: #302f2a;
+  --text: #f3f0e8;
+  --muted: #aaa69b;
+  --faint: #77746b;
+  --accent: #d4ff55;
+  --green: #d4ff55;
+}
+html, body { background: #10100f; }
+body {
+  background:
+    radial-gradient(ellipse 42rem 28rem at 88% 8%, rgba(202,255,72,.075), transparent 72%),
+    radial-gradient(ellipse 35rem 24rem at 4% 55%, rgba(181,137,255,.055), transparent 75%),
+    #10100f;
+}
+.app-shell { width: min(1180px, calc(100% - 64px)); }
+.topbar {
+  height: 84px;
+  border-bottom: 1px solid #ffffff18;
+}
+.brand { gap: 13px; }
+.brand-mark {
+  width: 42px; height: 42px;
+  border: 1px solid #d4ff55;
+  border-radius: 13px 13px 13px 4px;
+  background: var(--accent); color: #171811;
+  transform: rotate(-3deg);
+}
+.brand-mark svg { transform: rotate(3deg); }
+.brand-name {
+  font-size: 15px; font-weight: 900; letter-spacing: -.055em;
+}
+.brand-tagline { color: #aaa69b; font-size: 10px; letter-spacing: .025em; }
+.live-dot, .offline-indicator > span {
+  background: var(--accent); box-shadow: 0 0 12px #d4ff5566;
+}
+.clock-zone { color: #8d8a80; }
+.clock-value { color: #f3f0e8; }
+.offline-indicator { color: #8d8a80; }
+.main-content { max-width: 960px; padding: 48px 0 72px; }
+.page-intro { margin-bottom: 27px; align-items: flex-end; }
+.page-intro h1 {
+  max-width: 700px;
+  margin: 8px 0 9px;
+  color: #f3f0e8;
+  font-size: clamp(38px, 6.2vw, 66px);
+  line-height: .98;
+  font-weight: 850;
+  letter-spacing: -.085em;
+}
+.page-intro p { color: #aaa69b; font-size: 13px; }
+.today-date {
+  padding: 9px 12px;
+  border: 1px solid #ffffff20;
+  border-radius: 999px;
+  background: #ffffff08;
+  color: #c4c0b5;
+  font-size: 10px;
+}
+.today-date svg { color: var(--accent); }
+.view-tabs {
+  width: fit-content; max-width: 100%; height: auto;
+  padding: 5px; gap: 3px;
+  border: 1px solid #ffffff1c; border-radius: 12px;
+  background: #191917;
+  margin-bottom: 16px;
+}
+.view-tab {
+  min-width: 96px; height: 39px; padding: 0 13px;
+  border-radius: 8px; color: #a5a196;
+  font-size: 11px; font-weight: 650;
+}
+.view-tab:hover { color: #f3f0e8; background: #ffffff0c; }
+.view-tab.active {
+  color: #171811; background: var(--accent);
+  box-shadow: none; font-weight: 800;
+}
+.view-tab.active svg { color: #171811; }
+.soon-tag {
+  color: #25251d; border: 0; border-radius: 4px;
+  background: #d4ff55; font-weight: 800;
+}
+.timer-card {
+  padding: 25px clamp(22px,5vw,52px) 20px;
+  border: 1px solid #d4ff5555; border-radius: 22px;
+  background:
+    radial-gradient(ellipse 28rem 17rem at 50% 36%, #d4ff550d, transparent 75%),
+    linear-gradient(145deg, #20201c, #171715 72%);
+  box-shadow: 0 24px 90px #0006, inset 0 1px #ffffff0d;
+}
+.timer-card:before { display: none; }
+.timer-card.is-running { border-color: var(--accent); }
+.session-kicker {
+  color: #d4ff55; font-size: 9px; letter-spacing: .19em;
+}
+.session-status {
+  border-color: #ffffff24; border-radius: 7px;
+  color: #c4c0b5; font-size: 8px; letter-spacing: .12em;
+}
+.status-running {
+  color: #171811; border-color: var(--accent);
+  background: var(--accent);
+}
+.status-running .status-indicator {
+  background: #171811; box-shadow: none;
+}
+.timer-center { padding: clamp(54px,8vw,82px) 0 44px; }
+.timer-digits {
+  color: #f5f2e9;
+  font-size: clamp(62px, 12vw, 112px);
+  font-weight: 650; letter-spacing: -.105em;
+  text-shadow: 0 5px 35px #d4ff5510;
+}
+.timer-label { color: #d4ff55; }
+.timer-description { color: #aaa69b; }
+.primary-button {
+  min-height: 51px; padding: 0 24px;
+  border-radius: 8px; background: var(--accent);
+  color: #171811; font-size: 12px; font-weight: 850;
+  box-shadow: 4px 4px 0 #879f36;
+}
+.primary-button:hover {
+  transform: translate(-1px,-1px);
+  background: #e0ff83; box-shadow: 5px 5px 0 #879f36;
+}
+.stop-button, .quiet-button {
+  border-radius: 8px; border-color: #ffffff2b;
+  background: #ffffff09; color: #d1cdc2;
+}
+.stop-button { border-color: #a85d5055; background: #a85d5018; color: #e5aaa0; }
+.keyboard-hint { color: #8d8a80; }
+kbd {
+  border: 1px solid #ffffff38; border-radius: 5px;
+  background: #292923; color: #f3f0e8; box-shadow: 0 2px 0 #090908;
+}
+.timer-bottom { border-top-color: #ffffff1c; }
+.detail-grid { gap: 14px; margin-top: 14px; }
+.detail-card, .paused-list, .history-day, .calendar-month, .calendar-agenda,
+.activity-create-form, .managed-activities, .calendar-create {
+  border: 1px solid #ffffff1c; border-radius: 13px;
+  background: #191917;
+  box-shadow: inset 0 1px #ffffff08;
+}
+.detail-card { min-height: 220px; padding: 21px 23px; }
+.detail-heading { color: #c4c0b5; letter-spacing: .12em; }
+.detail-icon, .paused-row-icon, .history-session-mark {
+  border: 1px solid #d4ff553d; border-radius: 8px;
+  background: #d4ff5512; color: var(--accent);
+}
+.autosave { color: var(--accent); }
+.field-label { color: #8d8a80; }
+.title-input, .note-input { color: #f3f0e8; }
+.title-input:hover, .note-input:hover,
+.title-input:focus, .note-input:focus {
+  border-color: #d4ff5570; background: #ffffff08;
+}
+.today-total { color: var(--accent); font-weight: 650; }
+.today-caption { color: #aaa69b; }
+.today-progress-track { background: #ffffff18; }
+.today-progress-track span { background: var(--accent); }
+.today-footnote { color: #aaa69b; }
+.today-footnote button { color: var(--accent); }
+.paused-list { padding: 20px 22px 8px; }
+.paused-list-heading h2, .history-day-heading h3,
+.history-session-copy strong, .paused-row-copy strong { color: #f3f0e8; }
+.paused-row { border-top-color: #ffffff16; }
+.paused-row-time, .history-session-duration { color: var(--accent); }
+.paused-row:hover .paused-row-copy strong,
+.history-session-main:hover .history-session-copy strong { color: var(--accent); }
+.history-header h2 { color: #f3f0e8; font-size: 25px; font-weight: 800; letter-spacing: -.06em; }
+.history-day { padding: 0 20px; }
+.history-day-heading { border-bottom-color: #ffffff18; }
+.history-day-heading > strong { color: var(--accent); }
+.history-session { border-bottom-color: #ffffff16; }
+.history-session-details { color: #aaa69b; }
+.empty-history, .insights-placeholder {
+  border: 1px dashed #d4ff5555; border-radius: 16px;
+  background: #191917;
+}
+.empty-icon, .insights-orb, .recovery-icon {
+  border: 1px solid #d4ff5570; border-radius: 13px;
+  background: #d4ff5515; color: var(--accent);
+}
+.empty-history h3, .insights-placeholder h2 { color: #f3f0e8; font-weight: 750; }
+.empty-history p, .insights-placeholder p { color: #aaa69b; }
+.insights-placeholder h2 { font-size: 27px; }
+.error-banner { border-radius: 9px; }
+.app-footer { border-top-color: #ffffff18; }
+.modal-backdrop { background: #090908c9; }
+.recovery-modal {
+  border: 1px solid #d4ff5555; border-radius: 16px;
+  background: #1b1b18;
+}
+.recovery-modal h2 { color: #f3f0e8; font-weight: 800; }
+.checkpoint-row { border-color: #ffffff20; background: #11110f; }
+.recovery-primary { box-shadow: 4px 4px 0 #879f36; }
+.recovery-secondary:hover { background: #ffffff0d; }
+.activity-options {
+  border-color: #d4ff5555; border-radius: 9px;
+  background: #191917;
+}
+.activity-option:hover, .activity-option.active { background: #d4ff5518; }
+.activity-create { color: var(--accent); }
+.activity-settings { padding-top: 24px; }
+.settings-description { color: #aaa69b; }
+.activity-create-row .title-input, .activity-search,
+.calendar-form-grid input, .sequence-row input[type=number],
+.calendar-create>input[type=date], .reminder-time-field input {
+  border-color: #ffffff25; border-radius: 8px;
+  background: #11110f; color: #f3f0e8;
+}
+.managed-activity { border-bottom-color: #ffffff16; }
+.managed-activity-name { color: #f3f0e8; }
+.managed-activity button, .activity-edit-form button {
+  border-color: #ffffff2b; border-radius: 7px;
+  background: #ffffff09; color: #d1cdc2;
+}
+.managed-activity button:hover, .activity-edit-form button:hover {
+  border-color: var(--accent); color: var(--accent);
+}
+.calendar-month-head button, .planned-actions button {
+  border-color: #ffffff25; border-radius: 7px;
+  background: #11110f; color: #d4ff55;
+}
+.calendar-day { background: #22221e; color: #f3f0e8; }
+.calendar-day.selected { border-color: var(--accent); background: #d4ff5520; color: #f3f0e8; }
+.calendar-day.today:before, .calendar-day i { background: var(--accent); }
+.calendar-view-switch { border-color: #ffffff25; background: #11110f; }
+.calendar-view-switch button.active { background: var(--accent); color: #171811; }
+.calendar-week-days button { border-color: #ffffff22; background: #20201c; color: #d1cdc2; }
+.calendar-week-days button.selected { border-color: var(--accent); background: #d4ff5518; color: #f3f0e8; }
+.calendar-next-step { border-color: #d4ff5555; background: #d4ff550d; color: #c4c0b5; }
+.calendar-next-step strong { color: #f3f0e8; }
+.calendar-next-step button { border-color: var(--accent); background: var(--accent); color: #171811; }
+.reminder-enable { border-color: #ffffff2b; border-radius: 7px; background: #ffffff09; color: #d1cdc2; }
+.calendar-reminder { border-color: #d4ff5555; background: #d4ff5512; color: #e4f4b9; }
+
+@media (max-width: 680px) {
+  .app-shell { width: calc(100% - 32px); }
+  .main-content { padding-top: 35px; }
+  .page-intro h1 { font-size: clamp(38px, 10vw, 54px); }
+  .page-intro { gap: 15px; }
+  .view-tabs { width: 100%; }
+  .view-tab { min-width: 0; flex: 1; padding: 0 8px; }
+}
+@media (max-width: 420px) {
+  .app-shell { width: calc(100% - 24px); }
+  .brand-mark { width: 38px; height: 38px; }
+  .timer-card { padding-right: 16px; padding-left: 16px; border-radius: 16px; }
+  .timer-digits { font-size: clamp(46px, 12vw, 62px); }
+  .timer-center { padding: 56px 0 38px; }
+  .view-tab { gap: 4px; font-size: 9px; }
+}
