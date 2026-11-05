@@ -10,7 +10,7 @@ const id = (): string => crypto.randomUUID();
 function toPlannedSession(input: PlannedSessionInput, now: number): PlannedSession {
   validatePlannedSession(input);
   return {
-    id: id(), planId: input.planId ?? null, title: input.title.trim(), activityId: input.activityId ?? null,
+    id: input.id ?? id(), planId: input.planId ?? null, title: input.title.trim(), activityId: input.activityId ?? null,
     note: input.note ?? '', subjectName: input.subjectName ?? null, topicName: input.topicName ?? null,
     status: 'scheduled', schedulingMode: input.schedulingMode ?? 'fixed',
     scheduledDate: input.scheduledDate, scheduledTime: input.scheduledTime ?? null, timezone: input.timezone,
