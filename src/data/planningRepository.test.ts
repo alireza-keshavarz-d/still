@@ -25,8 +25,12 @@ describe('study planning persistence', () => {
   });
 
   it('links a planned activity to exactly one actual session and completes it with recalculation', async () => {
-    const plan = await createStudyPlan('Revision', [{ title: 'Read', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' }], 100);
-    const planned = (await getAllPlannedSessions())[0];
+    const dependentId = crypto.randomUUID();
+    const plan = await createStudyPlan('Revision', [
+      { title: 'Read', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' },
+      { id: dependentId, title: 'Practice', scheduledDate: '2026-11-04', timezone: 'Asia/Tehran', schedulingMode: 'relative', predecessorId: 'temporary', intervalDays: 3 }
+    ], 100);
+    const planned = (await getAllPlannedSessions()).find(x => x.planId === plan.id)!;
     const actual = await startPlannedSession(planned.id, Date.UTC(2026, 10, 5, 9));
     expect(actual.plannedSessionId).toBe(planned.id);
     expect((await getAllSessions()).filter(x => x.plannedSessionId === planned.id)).toHaveLength(1);
@@ -35,7 +39,8 @@ describe('study planning persistence', () => {
     const completed = (await getAllPlannedSessions()).find(x => x.id === planned.id);
     expect(completed?.status).toBe('completed');
     expect(completed?.completedAt).toBe(Date.UTC(2026, 10, 5, 10));
-    expect((await getAllStudyPlans()).find(x => x.id === plan.id)?.status).toBe('completed');
+    expect((await getAllPlannedSessions()).find(x => x.id === dependentId)?.scheduledDate).toBe('2026-11-08');
+    expect((await getAllStudyPlans()).find(x => x.id === plan.id)?.status).toBe('active');
     const secondPlan = await createStudyPlan('Cancel review', [{ title: 'Review', scheduledDate: '2026-11-02', timezone: 'Asia/Tehran' }], 300);
     const secondItem = (await getAllPlannedSessions()).find(x => x.planId === secondPlan.id)!;
     await cancelSession(secondItem.id, 400);
