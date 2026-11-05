@@ -42,4 +42,28 @@ describe('study planning persistence', () => {
     await expect(createPlannedSession({ title: ' ', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' })).rejects.toThrow();
     expect(await getAllPlannedSessions()).toHaveLength(0);
   });
+  it('upgrades v2 data to v3 without changing existing session and interval records', async () => {
+    const name = 'still-v3-migration-' + crypto.randomUUID();
+    const legacy = new Dexie(name);
+    legacy.version(1).stores({ sessions: 'id, status, startedAt, endedAt, updatedAt', intervals: 'id, sessionId, startedAt, endedAt, checkpointAt' });
+    legacy.version(2).stores({ sessions: 'id, activityId, status, startedAt, endedAt, updatedAt', intervals: 'id, sessionId, startedAt, endedAt, checkpointAt', activities: 'id, &normalizedName, name, createdAt, archivedAt' });
+    await legacy.open();
+    const session = { id: 's1', activityId: 'a1', title: 'Legacy', note: '', status: 'completed', startedAt: 10, endedAt: 20, timezone: 'Asia/Tehran', createdAt: 10, updatedAt: 20 };
+    const interval = { id: 'i1', sessionId: 's1', startedAt: 10, endedAt: 20, checkpointAt: 20 };
+    await legacy.table('sessions').add(session);
+    await legacy.table('intervals').add(interval);
+    legacy.close();
+    const upgraded = new Dexie(name);
+    upgraded.version(1).stores({ sessions: 'id, status, startedAt, endedAt, updatedAt', intervals: 'id, sessionId, startedAt, endedAt, checkpointAt' });
+    upgraded.version(2).stores({ sessions: 'id, activityId, status, startedAt, endedAt, updatedAt', intervals: 'id, sessionId, startedAt, endedAt, checkpointAt', activities: 'id, &normalizedName, name, createdAt, archivedAt' });
+    upgraded.version(3).stores({ sessions: 'id, activityId, status, startedAt, endedAt, updatedAt', intervals: 'id, sessionId, startedAt, endedAt, checkpointAt', activities: 'id, &normalizedName, name, createdAt, archivedAt', studyPlans: 'id, status, createdAt, updatedAt', plannedSessions: 'id, planId, scheduledDate, status, predecessorId, studySessionId, [planId+scheduledDate]' });
+    try {
+      await upgraded.open();
+      expect(await upgraded.table('sessions').get('s1')).toEqual(session);
+      expect(await upgraded.table('intervals').get('i1')).toEqual(interval);
+      expect(await upgraded.table('studyPlans').toArray()).toEqual([]);
+      expect(await upgraded.table('plannedSessions').toArray()).toEqual([]);
+    } finally { await upgraded.delete(); }
+  });
+
 });
