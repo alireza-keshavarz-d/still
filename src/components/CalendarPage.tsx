@@ -13,6 +13,7 @@ interface CalendarPageProps { onStartPlannedSession: (id: string) => Promise<voi
 export default function CalendarPage({ onStartPlannedSession }: CalendarPageProps) {
   const [items, setItems] = useState<PlannedSession[]>([]);
   const [month, setMonth] = useState(today().slice(0, 7));
+  const [viewMode, setViewMode] = useState<'month' | 'week' | 'agenda'>('month');
   const [selected, setSelected] = useState(today());
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(today());
@@ -31,6 +32,9 @@ export default function CalendarPage({ onStartPlannedSession }: CalendarPageProp
 
   const days = useMemo(() => monthGridDates(month), [month]);
   const selectedItems = items.filter((item) => item.scheduledDate === selected).sort((a,b) => (a.scheduledTime ?? '').localeCompare(b.scheduledTime ?? ''));
+  const weekStart = addCalendarDays(selected, -new Date(selected + 'T12:00:00Z').getUTCDay());
+  const weekDays = Array.from({ length: 7 }, (_, index) => addCalendarDays(weekStart, index));
+  const agendaItems = viewMode === 'agenda' ? items.filter((item) => item.status !== 'cancelled').sort((a,b) => a.scheduledDate.localeCompare(b.scheduledDate)) : selectedItems;
   const countFor = (day: string) => items.filter((item) => item.scheduledDate === day && item.status !== 'cancelled').length;
 
   async function perform(action: () => Promise<unknown>) {
