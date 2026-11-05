@@ -1,5 +1,6 @@
 import type { PlannedSession } from './types';
 import { recalculateRelativeSessions } from './scheduling';
+import { isValidDateKey } from './dateMath';
 
 export type SkipStrategy = 'keep-dates' | 'recalculate';
 
@@ -25,6 +26,7 @@ export function cancelPlannedSession(items: PlannedSession[], id: string, now: n
 }
 
 export function reschedulePlannedSession(items: PlannedSession[], id: string, date: string, cascade: boolean): PlannedSession[] {
+  if (!isValidDateKey(date)) throw new Error('A valid scheduled date is required.');
   const target = items.find((item) => item.id === id);
   if (!target || target.status !== 'scheduled') throw new Error('Only a scheduled activity can be rescheduled.');
   const next = items.map((item) => item.id === id ? { ...item, scheduledDate: date } : { ...item });
