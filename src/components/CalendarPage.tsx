@@ -8,9 +8,9 @@ import type { PlannedSession } from '../domain/planning/types';
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: DEFAULT_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const monthLabel = (month: string) => new Intl.DateTimeFormat('en', { timeZone: 'UTC', month: 'long', year: 'numeric' }).format(new Date(month + '-01T12:00:00Z'));
 
-interface CalendarPageProps { onStartPlannedSession: (id: string) => Promise<void>; }
+interface CalendarPageProps { onStartPlannedSession: (id: string) => Promise<void>; completedSessionTitle?: string | null; }
 
-export default function CalendarPage({ onStartPlannedSession }: CalendarPageProps) {
+export default function CalendarPage({ onStartPlannedSession, completedSessionTitle }: CalendarPageProps) {
   const [items, setItems] = useState<PlannedSession[]>([]);
   const [month, setMonth] = useState(today().slice(0, 7));
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'agenda'>('month');
@@ -80,6 +80,7 @@ export default function CalendarPage({ onStartPlannedSession }: CalendarPageProp
       <div><div className="eyebrow">YOUR STUDY SCHEDULE</div><h2>Calendar</h2></div>
       <div className="calendar-heading-actions"><div className="calendar-view-switch" aria-label="Calendar view">{(['month', 'week', 'agenda'] as const).map((mode) => <button key={mode} className={viewMode === mode ? 'active' : ''} onClick={() => setViewMode(mode)}>{mode}</button>)}</div><button className="quiet-button" onClick={() => { setDate(selected); setShowSequence((v) => !v); setShowCreate(false); }}>Build a sequence</button><button className="primary-button" onClick={() => { setDate(selected); setShowCreate((v) => !v); setShowSequence(false); }}><Plus size={15}/> Plan session</button></div>
     </div>
+    {completedSessionTitle && <div className="calendar-next-step"><span>Completed: <strong>{completedSessionTitle}</strong></span><button onClick={() => { setDate(today()); setPlanTitle("Continue: " + completedSessionTitle); setShowSequence(true); setShowCreate(false); }}>Plan what comes next</button></div>}
     {error && <div className="error-banner" role="alert">{error}</div>}
     {showSequence && <form className="calendar-create" onSubmit={(event) => { event.preventDefault(); void addSequence(); }}>
       <div className="eyebrow">LEARNING SEQUENCE</div><h3 className="sequence-title">Plan what comes next</h3>
