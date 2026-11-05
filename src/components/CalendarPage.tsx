@@ -123,4 +123,5 @@ export default function CalendarPage({ onStartPlannedSession }: CalendarPageProp
           </article>)}</div>}
       </div>
     </div>
+  </section>;
 }
