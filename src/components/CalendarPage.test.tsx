@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import CalendarPage from './CalendarPage';
 
 const mocks = vi.hoisted(() => ({
@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('../data/planningRepository', () => mocks);
 
 describe('CalendarPage', () => {
+  afterEach(() => cleanup());
   beforeEach(() => {
     vi.clearAllMocks();
     let id = 0;
