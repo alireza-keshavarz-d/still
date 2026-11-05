@@ -16,6 +16,7 @@ import {
 import { DEFAULT_TIME_ZONE } from './domain/types';
 import type { DailyHistoryEntry, RecoveryCandidate, StudyInterval, StudySession } from './domain/types';
 import CalendarPage from './components/CalendarPage';
+import ReminderMonitor from './components/ReminderMonitor';
 
 type View = 'focus' | 'history' | 'calendar' | 'insights' | 'settings';
 const TIME_ZONE = DEFAULT_TIME_ZONE;
@@ -250,6 +251,7 @@ function App() {
 
   return (
     <div className="app-shell">
+      <ReminderMonitor />
       <header className="topbar">
         <a className="brand" href="#focus" onClick={(event) => { event.preventDefault(); setView('focus'); }}>
           <span className="brand-mark"><Clock3 size={18} strokeWidth={1.7} /></span>
