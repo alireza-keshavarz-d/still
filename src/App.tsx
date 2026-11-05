@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import {
   checkpointRunningSession, getAllIntervals, getAllSessions, getRecoveryCandidate,
-  pauseSession, recoverInterruptedSession, resumeSession, startSession, stopSession,
+  pauseSession, recoverInterruptedSession, resumeSession, startSession, startPlannedSession, stopSession,
   updateSessionDetails
 } from './data/sessionRepository';
 import {
@@ -15,8 +15,10 @@ import {
 } from './domain/time';
 import { DEFAULT_TIME_ZONE } from './domain/types';
 import type { DailyHistoryEntry, RecoveryCandidate, StudyInterval, StudySession } from './domain/types';
+import CalendarPage from './components/CalendarPage';
+import ReminderMonitor from './components/ReminderMonitor';
 
-type View = 'focus' | 'history' | 'insights' | 'settings';
+type View = 'focus' | 'history' | 'calendar' | 'insights' | 'settings';
 const TIME_ZONE = DEFAULT_TIME_ZONE;
 const CHECKPOINT_INTERVAL_MS = 30_000;
 
@@ -45,6 +47,7 @@ function App() {
   const [error, setError] = useState('');
   const [recovery, setRecovery] = useState<RecoveryCandidate | null>(null);
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
+  const [lastCompletedTitle, setLastCompletedTitle] = useState<string | null>(null);
 
   const currentSession = !creating ? sessions.find((session) => session.id === selectedId) : undefined;
   const runningSession = sessions.find((session) => session.status === 'running');
@@ -195,6 +198,16 @@ function App() {
     if (succeeded) setCreating(false);
   }
 
+  async function beginPlannedSession(plannedId: string) {
+    const session = await startPlannedSession(plannedId);
+    await reload();
+    setSelectedId(session.id);
+    setCreating(false);
+    setTitle(session.title);
+    setNote(session.note);
+    setView('focus');
+  }
+
   async function finishSession() {
     if (!currentSession) return;
     const session = currentSession;
@@ -204,6 +217,7 @@ function App() {
       await stopSession(session.id);
     });
     if (succeeded) {
+      setLastCompletedTitle(session.title);
       setSelectedId(null);
       setCreating(true);
       setTitle('Study session');
@@ -249,6 +263,7 @@ function App() {
 
   return (
     <div className="app-shell">
+      <ReminderMonitor />
       <header className="topbar">
         <a className="brand" href="#focus" onClick={(event) => { event.preventDefault(); setView('focus'); }}>
           <span className="brand-mark"><Clock3 size={18} strokeWidth={1.7} /></span>
@@ -265,8 +280,8 @@ function App() {
         <div className="page-intro">
           <div>
             {/* <div className="eyebrow">YOUR PERSONAL TIMEKEEPER</div> */}
-            <h1>{view === 'focus' ? 'Stay with the work.' : view === 'history' ? 'Look back, clearly.' : view === 'settings' ? 'Keep your catalog clear.' : 'Insights, in time.'}</h1>
-            <p>{view === 'focus' ? 'Give your attention to one thing at a time.' : view === 'history' ? 'Every focused interval, accounted for.' : view === 'settings' ? 'Manage the activities attached to your sessions.' : 'A clearer picture of how you spend your focus.'}</p>
+            <h1>{view === 'focus' ? 'Stay with the work.' : view === 'history' ? 'Look back, clearly.' : view === 'settings' ? 'Keep your catalog clear.' : view === 'calendar' ? 'Plan the next step.' : 'Insights, in time.'}</h1>
+            <p>{view === 'focus' ? 'Give your attention to one thing at a time.' : view === 'history' ? 'Every focused interval, accounted for.' : view === 'settings' ? 'Manage the activities attached to your sessions.' : view === 'calendar' ? 'Make space for what you will study next.' : 'A clearer picture of how you spend your focus.'}</p>
           </div>
           <div className="today-date"><CalendarDays size={14} /> {dateLabel(now)}</div>
         </div>
@@ -274,6 +289,7 @@ function App() {
         <nav className="view-tabs" aria-label="Main navigation">
           <button className={view === 'focus' ? 'view-tab active' : 'view-tab'} onClick={() => setView('focus')}><Timer size={16} /> Focus</button>
           <button className={view === 'history' ? 'view-tab active' : 'view-tab'} onClick={() => setView('history')}><History size={16} /> History</button>
+          <button className={view === 'calendar' ? 'view-tab active' : 'view-tab'} onClick={() => setView('calendar')}><CalendarDays size={16} /> Calendar</button>
           <button className={view === 'insights' ? 'view-tab active' : 'view-tab'} onClick={() => setView('insights')}><Sparkles size={16} /> Insights <span className="soon-tag">LATER</span></button>
           <button className={view === 'settings' ? 'view-tab active' : 'view-tab'} onClick={() => setView('settings')}><Pencil size={16} /> Settings</button>
         </nav>
@@ -282,6 +298,8 @@ function App() {
 
         {loading ? (
           <div className="loading-state"><span className="loading-spinner" /> Opening your workspace…</div>
+        ) : view === 'calendar' ? (
+          <CalendarPage onStartPlannedSession={beginPlannedSession} completedSessionTitle={lastCompletedTitle} />
         ) : view === 'focus' ? (
           <section className="focus-layout">
             <div className={'timer-card ' + (currentSession?.status === 'running' ? 'is-running' : '')}>

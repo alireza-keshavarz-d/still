@@ -224,3 +224,29 @@ A naive last-write-wins merge is not sufficient for interval histories. Concurre
 ## 13. Deployment
 
 GitHub Actions runs type-checking, tests, and a production build on every branch push and pull request. A successful push to the production branch (`main`) additionally deploys the built PWA to GitHub Pages. The repository Pages source must be configured as GitHub Actions, and private-repository Pages availability depends on the account plan.
+
+## 14. Study planning and calendar
+
+Study planning adds two IndexedDB tables in schema version 3: `studyPlans` and `plannedSessions`. Existing session, interval, and activity records are preserved by the additive migration. A planned session can be standalone or belong to one study plan. An actual tracked session links to at most one planned session through `plannedSessionId` and `studySessionId`.
+
+A planned activity stores an ISO calendar date separately from its optional local wall-clock time and IANA timezone. Fixed dates are not changed by automatic recalculation. Relative activities require one predecessor and a positive whole-calendar-day offset. The pure scheduling domain validates the dependency graph and rejects missing nodes, self-links, and cycles. Completion of a linked actual session updates the planned activity and recalculates scheduled relative descendants in the same IndexedDB transaction.
+
+Skipping asks whether to keep downstream dates or remove the skipped node from the dependency chain and recalculate. Rescheduling asks whether dependent relative activities should also move. Completed, skipped, and cancelled activities are not silently overwritten by normal recalculation.
+
+The Calendar page provides month, week, and agenda views, quick standalone planning, and a sequence builder. A completed study session provides a follow-up entry point to create the next learning sequence. Planned activities can be started from the calendar; the existing session timer remains the source of truth for actual time.
+
+### Reminders
+
+Only pre-session reminders are supported. Timed sessions default to a reminder 15 minutes before their start; date-only sessions can specify a reminder time on that date. Reminder preferences and delivery state are stored locally. While the app is open, a lightweight monitor checks due reminders and uses the Notification API if permission has been granted, otherwise it shows an in-app reminder. Permission is requested only after the user selects the notification control.
+
+A static offline-first PWA cannot guarantee delivery while completely closed. The application must not claim that local reminders will fire when the browser or PWA is not running. Reliable closed-app delivery requires a future server-backed Web Push service and is outside this release.
+
+### Planning invariants
+
+- A planned session belongs to at most one plan.
+- A planned session produces at most one actual study session.
+- A relative planned session has one existing predecessor and a positive integer interval.
+- Dependency graphs are acyclic.
+- Dates use calendar arithmetic, not fixed 24-hour millisecond increments.
+- Completion and downstream recalculation are atomic with the actual session completion.
+- Reminder side effects are best-effort and never affect session time accounting.

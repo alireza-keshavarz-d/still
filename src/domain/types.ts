@@ -14,6 +14,7 @@ export interface StudyActivity {
 export interface StudySession {
   id: string;
   activityId: string;
+  plannedSessionId?: string | null;
   title: string;
   note: string;
   status: SessionStatus;

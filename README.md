@@ -13,6 +13,10 @@ Still records focused study time through explicit sessions and active intervals.
 - Canonical activity catalog with normalized autocomplete, typo suggestions, and inline activity creation.
 - Activity management in Settings, including rename, archive, and restore.
 - Interrupted-session recovery: choose whether to include time since the last persisted checkpoint.
+- Study calendar with month, week, and agenda views.
+- Standalone planned sessions and editable learning sequences with fixed or completion-relative dates.
+- Automatic downstream date recalculation when a linked study session is completed.
+- Pre-session reminders while the app is open, with optional browser notifications when permission is granted.
 - Day-grouped history, including intervals split across Iran-local midnight.
 - IndexedDB persistence and offline PWA application shell.
 - Responsive dark interface for desktop and mobile browsers.
@@ -30,13 +34,13 @@ npm run test:coverage # includes enforced activity-core coverage thresholds
 npm run build
 ```
 
-The coverage command reports V8 coverage and enforces the activity-core thresholds used by CI.
+The coverage command reports V8 coverage and enforces thresholds for the activity catalog, planning/scheduling domain, planning repository, and reminder scheduling.
 
 ## Architecture
 
 See [System Design](docs/SYSTEM_DESIGN.md) and [Contributing](CONTRIBUTING.md).
 
-The UI talks to a session repository. Dexie/IndexedDB stores sessions, active intervals, and canonical activities. Duration is calculated from timestamps, not a counter persisted every second.
+The UI talks to a session repository. Dexie/IndexedDB stores sessions, active intervals, canonical activities, study plans, and planned sessions. A pure TypeScript scheduling domain validates dependency graphs and recalculates relative dates. Browser reminders are best-effort while the PWA is active; closed-app delivery is not guaranteed. Duration is calculated from timestamps, not a counter persisted every second.
 
 ## Deployment
 

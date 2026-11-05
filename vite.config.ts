@@ -35,7 +35,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/domain/activity.ts', 'src/data/activityMigration.ts', 'src/data/activityRepository.ts'],
+      include: ['src/domain/activity.ts', 'src/data/activityMigration.ts', 'src/data/activityRepository.ts', 'src/domain/planning/dateMath.ts', 'src/domain/planning/validation.ts', 'src/domain/planning/dependencies.ts', 'src/domain/planning/scheduling.ts', 'src/domain/planning/transitions.ts', 'src/data/planningRepository.ts', 'src/application/reminderService.ts'],
       thresholds: { lines: 80, functions: 80, branches: 70, statements: 80 }
     }
   }
