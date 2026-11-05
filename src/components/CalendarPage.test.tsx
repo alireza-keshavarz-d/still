@@ -18,6 +18,8 @@ vi.mock('../data/planningRepository', () => mocks);
 describe('CalendarPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    let id = 0;
+    vi.stubGlobal('crypto', { randomUUID: () => 'test-id-' + (++id) });
     mocks.getAllPlannedSessions.mockResolvedValue([]);
     mocks.createPlannedSession.mockResolvedValue({ id: 'new' });
     Object.defineProperty(window, 'matchMedia', {
