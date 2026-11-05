@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import {
   checkpointRunningSession, getAllIntervals, getAllSessions, getRecoveryCandidate,
-  pauseSession, recoverInterruptedSession, resumeSession, startSession, stopSession,
+  pauseSession, recoverInterruptedSession, resumeSession, startSession, startPlannedSession, stopSession,
   updateSessionDetails
 } from './data/sessionRepository';
 import {
@@ -196,7 +196,7 @@ function App() {
     if (succeeded) setCreating(false);
   }
 
-  async function finishSession() {
+  async function beginPlannedSession(plannedId: string) {\n    const session = await startPlannedSession(plannedId);\n    await reload();\n    setSelectedId(session.id);\n    setCreating(false);\n    setTitle(session.title);\n    setNote(session.note);\n    setView('focus');\n  }\n\n  async function finishSession() {
     if (!currentSession) return;
     const session = currentSession;
     const succeeded = await perform(async () => {
@@ -285,7 +285,7 @@ function App() {
         {loading ? (
           <div className="loading-state"><span className="loading-spinner" /> Opening your workspace…</div>
         ) : view === 'calendar' ? (
-          <CalendarPage />
+          <CalendarPage onStartPlannedSession={beginPlannedSession} />
         ) : view === 'focus' ? (
           <section className="focus-layout">
             <div className={'timer-card ' + (currentSession?.status === 'running' ? 'is-running' : '')}>
