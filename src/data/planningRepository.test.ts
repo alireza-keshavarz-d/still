@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import Dexie from 'dexie';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { database } from './database';
-import { createPlannedSession, createStudyPlan, getAllPlannedSessions, getAllStudyPlans, updatePlannedSession, skipSession, cancelSession } from './planningRepository';
+import { createPlannedSession, createStudyPlan, getAllPlannedSessions, getAllStudyPlans, updatePlannedSession, skipSession, cancelSession, getPlannedSessionsBetween, getPlannedSessionsForPlan, rescheduleSession, recalculatePlan, markReminderNotified } from './planningRepository';
 import { getAllSessions, startPlannedSession, stopSession } from './sessionRepository';
 
 describe('study planning persistence', () => {
@@ -63,6 +63,37 @@ describe('study planning persistence', () => {
     const planned = (await getAllPlannedSessions())[0];
     await skipSession(planned.id, 'keep-dates', 200);
     expect((await getAllStudyPlans()).find(x => x.id === plan.id)?.status).toBe('completed');
+  });
+
+  it('supports date-range and plan queries, explicit rescheduling, recalculation and reminder state', async () => {
+    const firstId = crypto.randomUUID();
+    const secondId = crypto.randomUUID();
+    const plan = await createStudyPlan('Revision chain', [
+      { id: firstId, title: 'Read', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' },
+      { id: secondId, title: 'Practice', scheduledDate: '2026-11-04', timezone: 'Asia/Tehran', schedulingMode: 'relative', predecessorId: firstId, intervalDays: 3 }
+    ], 100);
+    expect(await getPlannedSessionsForPlan(plan.id)).toHaveLength(2);
+    expect(await getPlannedSessionsBetween('2026-11-02', '2026-11-05')).toHaveLength(1);
+    await rescheduleSession(firstId, '2026-11-10', true, 200);
+    expect((await getAllPlannedSessions()).find(x => x.id === secondId)?.scheduledDate).toBe('2026-11-13');
+    await markReminderNotified(secondId, 300);
+    expect((await getAllPlannedSessions()).find(x => x.id === secondId)?.reminderNotifiedAt).toBe(300);
+    await updatePlannedSession(secondId, { reminderEnabled: true, reminderTime: '09:00' }, 400);
+    expect((await getAllPlannedSessions()).find(x => x.id === secondId)?.reminderNotifiedAt).toBeNull();
+    await recalculatePlan(plan.id, 500);
+  });
+
+  it('rejects invalid plan creation and dangling plan or predecessor references', async () => {
+    await expect(createStudyPlan(' ', [{ title: 'Read', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' }])).rejects.toThrow(/title/);
+    await expect(createStudyPlan('Empty', [])).rejects.toThrow(/at least one/);
+    await expect(createPlannedSession({ title: 'Orphan', planId: 'missing', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' })).rejects.toThrow(/plan/);
+    await expect(createPlannedSession({ title: 'Orphan', predecessorId: 'missing', schedulingMode: 'relative', intervalDays: 1, scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' })).rejects.toThrow(/Predecessor/);
+  });
+
+  it('uses pre-session reminder defaults for timed planned sessions', async () => {
+    const item = await createPlannedSession({ title: 'Timed review', scheduledDate: '2026-11-01', scheduledTime: '10:00', timezone: 'Asia/Tehran' });
+    expect(item.reminderEnabled).toBe(true);
+    expect(item.reminderMinutesBefore).toBe(15);
   });
 
   it('upgrades v2 data to v3 without changing existing session and interval records', async () => {
