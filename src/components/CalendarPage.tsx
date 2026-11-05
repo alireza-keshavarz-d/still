@@ -100,23 +100,27 @@ export default function CalendarPage({ onStartPlannedSession }: CalendarPageProp
       {time && <p className="reminder-note">A reminder is scheduled 15 minutes before this time. Browser notifications require permission; otherwise Still shows an in-app reminder while open.</p>}
       <div className="calendar-form-actions"><button className="primary-button" type="submit" disabled={busy}>Save planned session</button><button className="quiet-button" type="button" onClick={() => setShowCreate(false)}>Cancel</button></div>
     </form>}
-    <div className="calendar-layout">
-      <div className="calendar-month">
+    <div className={viewMode === 'agenda' ? 'calendar-layout agenda-only' : 'calendar-layout'}>
+      {viewMode === 'month' && <div className="calendar-month">
         <div className="calendar-month-head"><button aria-label="Previous month" onClick={() => { const d=new Date(month+'-01T12:00:00Z'); d.setUTCMonth(d.getUTCMonth()-1); setMonth(d.toISOString().slice(0,7)); }}><ChevronLeft size={17}/></button><h3>{monthLabel(month)}</h3><button aria-label="Next month" onClick={() => { const d=new Date(month+'-01T12:00:00Z'); d.setUTCMonth(d.getUTCMonth()+1); setMonth(d.toISOString().slice(0,7)); }}><ChevronRight size={17}/></button></div>
         <div className="calendar-grid">{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day) => <span className="calendar-weekday" key={day}>{day}</span>)}
           {days.map((day) => <button key={day} className={'calendar-day'+(day.slice(0,7)!==month?' outside':'')+(day===selected?' selected':'')+(day===today()?' today':'')} onClick={() => setSelected(day)}><span>{Number(day.slice(-2))}</span>{countFor(day)>0&&<i>{countFor(day)}</i>}</button>)}
         </div>
         <button className="calendar-today" onClick={() => { setSelected(today()); setMonth(today().slice(0,7)); }}>Jump to today</button>
-      </div>
+      </div>}
+      {viewMode === 'week' && <div className="calendar-month calendar-week-view">
+        <div className="calendar-month-head"><button aria-label="Previous week" onClick={() => setSelected(addCalendarDays(selected, -7))}><ChevronLeft size={17}/></button><h3>Week of {weekDays[0]}</h3><button aria-label="Next week" onClick={() => setSelected(addCalendarDays(selected, 7))}><ChevronRight size={17}/></button></div>
+        <div className="calendar-week-days">{weekDays.map((day) => <button key={day} className={day === selected ? 'selected' : ''} onClick={() => setSelected(day)}><small>{new Intl.DateTimeFormat('en',{weekday:'short',timeZone:'UTC'}).format(new Date(day+'T12:00:00Z'))}</small><strong>{Number(day.slice(-2))}</strong><i>{countFor(day)} planned</i></button>)}</div>
+        <button className="calendar-today" onClick={() => setSelected(today())}>Jump to today</button>
+      </div>}
       <div className="calendar-agenda">
-        <div className="calendar-agenda-head"><div><div className="eyebrow">AGENDA</div><h3>{new Intl.DateTimeFormat('en',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric'}).format(new Date(selected+'T12:00:00Z'))}</h3></div><span>{selectedItems.length} ACTIVITIES</span></div>
-        {selectedItems.length===0?<div className="calendar-empty">Nothing planned for this day.<button className="quiet-button" onClick={() => {setDate(selected);setShowCreate(true);}}>Add an activity <Plus size={13}/></button></div>:
-          <div className="planned-list">{selectedItems.map((item)=><article className="planned-card" key={item.id}><div className="planned-card-main"><span className={'planned-status status-'+item.status}></span><div><strong>{item.title}</strong><small>{item.scheduledTime ?? 'Flexible time'}{item.estimatedDurationMinutes ? ' · '+item.estimatedDurationMinutes+' min' : ''} · {item.status.replace('_',' ')}</small></div></div>
+        <div className="calendar-agenda-head"><div><div className="eyebrow">AGENDA</div><h3>{viewMode === 'agenda' ? 'Upcoming activities' : new Intl.DateTimeFormat('en',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric'}).format(new Date(selected+'T12:00:00Z'))}</h3></div><span>{agendaItems.length} ACTIVITIES</span></div>
+        {agendaItems.length===0?<div className="calendar-empty">Nothing planned for this day.<button className="quiet-button" onClick={() => {setDate(selected);setShowCreate(true);}}>Add an activity <Plus size={13}/></button></div>:
+          <div className="planned-list">{agendaItems.map((item)=><article className="planned-card" key={item.id}><div className="planned-card-main"><span className={'planned-status status-'+item.status}></span><div><strong>{item.title}</strong><small>{viewMode === 'agenda' ? item.scheduledDate + ' · ' : ''}{item.scheduledTime ?? 'Flexible time'}{item.estimatedDurationMinutes ? ' · '+item.estimatedDurationMinutes+' min' : ''} · {item.status.replace('_',' ')}</small></div></div>
             {item.status==='scheduled'&&<div className="planned-actions"><button title="Start session" disabled={busy} onClick={()=>void perform(()=>onStartPlannedSession(item.id))}><Play size={14}/></button><button title="Reschedule" disabled={busy} onClick={()=>void move(item)}><ChevronRight size={14}/></button><button title="Skip" disabled={busy} onClick={()=>void skip(item)}><SkipForward size={14}/></button><button title="Cancel" disabled={busy} onClick={()=>void perform(()=>cancelSession(item.id))}><XCircle size={14}/></button></div>}
             {item.status==='in_progress'&&<span className="planned-in-progress">IN PROGRESS</span>}
             {item.status==='completed'&&<span className="planned-in-progress"><CheckCircle2 size={13}/> COMPLETED</span>}
           </article>)}</div>}
       </div>
     </div>
-  </section>;
 }
