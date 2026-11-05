@@ -9,7 +9,7 @@ export default function ReminderMonitor() {
   );
 
   useEffect(() => {
-    let previous = Date.now() - 30_000;
+    let previous = Date.now() - 15 * 60_000;
     const check = async () => {
       const now = Date.now();
       const due = findDueReminders(await getAllPlannedSessions(), previous, now);
