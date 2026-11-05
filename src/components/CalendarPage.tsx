@@ -71,8 +71,9 @@ export default function CalendarPage({ onStartPlannedSession, completedSessionTi
   }
 
   async function skip(item: PlannedSession) {
-    const choice = window.confirm('Keep the remaining dates unchanged? Choose Cancel to recalculate the sequence.');
-    await perform(() => skipSession(item.id, choice ? 'keep-dates' : 'recalculate'));
+    const choice = window.prompt('Skip this activity:\n1 — Keep upcoming dates\n2 — Recalculate the remaining sequence\nLeave blank to cancel.', '1');
+    if (choice === '1') await perform(() => skipSession(item.id, 'keep-dates'));
+    else if (choice === '2') await perform(() => skipSession(item.id, 'recalculate'));
   }
 
   async function move(item: PlannedSession) {
