@@ -54,6 +54,31 @@ export async function startSession(title: string, note = '', now = Date.now()): 
   return session;
 }
 
+
+export async function startPlannedSession(plannedSessionId: string, now = Date.now()): Promise<StudySession> {
+  let created: StudySession | null = null;
+  await database.transaction('rw', database.sessions, database.intervals, database.activities, database.plannedSessions, async () => {
+    await assertNoRunningSession();
+    const planned = await database.plannedSessions.get(plannedSessionId);
+    if (!planned || planned.status !== 'scheduled') throw new Error('This planned activity cannot be started.');
+    if (planned.studySessionId) throw new Error('This planned activity already has a study session.');
+    const session: StudySession = {
+      id: createId(), activityId: planned.activityId ?? '', plannedSessionId,
+      title: planned.title, note: planned.note, status: 'running', startedAt: now,
+      endedAt: null, timezone: planned.timezone, createdAt: now, updatedAt: now
+    };
+    const interval: StudyInterval = { id: createId(), sessionId: session.id, startedAt: now, endedAt: null, checkpointAt: now };
+    const activity = await resolveActivityInTransaction(session.title, now);
+    session.activityId = activity.id;
+    session.title = activity.name;
+    await database.sessions.add(session);
+    await database.intervals.add(interval);
+    await database.plannedSessions.update(plannedSessionId, { status: 'in_progress', studySessionId: session.id, updatedAt: now });
+    created = session;
+  });
+  return created!;
+}
+
 export async function pauseSession(sessionId: string, now = Date.now()): Promise<void> {
   await database.transaction('rw', database.sessions, database.intervals, async () => {
     const session = await database.sessions.get(sessionId);
