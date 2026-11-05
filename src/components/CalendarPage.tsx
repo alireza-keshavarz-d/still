@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Play, CheckCircle2, SkipForward, XCircle } from 'lucide-react';
-import { createPlannedSession, createStudyPlan, getAllPlannedSessions, skipSession, cancelSession, rescheduleSession } from '../data/planningRepository';
+import { ChevronLeft, ChevronRight, Plus, Play, CheckCircle2, SkipForward, XCircle, Pencil } from 'lucide-react';
+import { createPlannedSession, createStudyPlan, getAllPlannedSessions, skipSession, cancelSession, rescheduleSession, updatePlannedSession } from '../data/planningRepository';
 import { addCalendarDays, monthGridDates } from '../domain/planning/dateMath';
 import { DEFAULT_TIME_ZONE } from '../domain/types';
 import type { PlannedSession } from '../domain/planning/types';
@@ -62,7 +62,7 @@ export default function CalendarPage({ onStartPlannedSession, completedSessionTi
     });
   }
 
-  async function skip(item: PlannedSession) {
+  async function editPlanned(item: PlannedSession) {\n    const nextTitle = window.prompt('Activity title', item.title);\n    if (nextTitle === null) return;\n    const nextDate = window.prompt('Scheduled date (YYYY-MM-DD)', item.scheduledDate);\n    if (nextDate === null) return;\n    const nextTime = window.prompt('Start time (HH:mm), or leave blank for flexible time', item.scheduledTime ?? '');\n    if (nextTime === null) return;\n    await perform(() => updatePlannedSession(item.id, { title: nextTitle, scheduledDate: nextDate, scheduledTime: nextTime || null }));\n  }\n\n  async function skip(item: PlannedSession) {
     const choice = window.confirm('Keep the remaining dates unchanged? Choose Cancel to recalculate the sequence.');
     await perform(() => skipSession(item.id, choice ? 'keep-dates' : 'recalculate'));
   }
@@ -118,7 +118,7 @@ export default function CalendarPage({ onStartPlannedSession, completedSessionTi
         <div className="calendar-agenda-head"><div><div className="eyebrow">AGENDA</div><h3>{viewMode === 'agenda' ? 'Upcoming activities' : new Intl.DateTimeFormat('en',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric'}).format(new Date(selected+'T12:00:00Z'))}</h3></div><span>{agendaItems.length} ACTIVITIES</span></div>
         {agendaItems.length===0?<div className="calendar-empty">Nothing planned for this day.<button className="quiet-button" onClick={() => {setDate(selected);setShowCreate(true);}}>Add an activity <Plus size={13}/></button></div>:
           <div className="planned-list">{agendaItems.map((item)=><article className="planned-card" key={item.id}><div className="planned-card-main"><span className={'planned-status status-'+item.status}></span><div><strong>{item.title}</strong><small>{viewMode === 'agenda' ? item.scheduledDate + ' · ' : ''}{item.scheduledTime ?? 'Flexible time'}{item.estimatedDurationMinutes ? ' · '+item.estimatedDurationMinutes+' min' : ''} · {item.status.replace('_',' ')}</small></div></div>
-            {item.status==='scheduled'&&<div className="planned-actions"><button title="Start session" disabled={busy} onClick={()=>void perform(()=>onStartPlannedSession(item.id))}><Play size={14}/></button><button title="Reschedule" disabled={busy} onClick={()=>void move(item)}><ChevronRight size={14}/></button><button title="Skip" disabled={busy} onClick={()=>void skip(item)}><SkipForward size={14}/></button><button title="Cancel" disabled={busy} onClick={()=>void perform(()=>cancelSession(item.id))}><XCircle size={14}/></button></div>}
+            {item.status==='scheduled'&&<div className="planned-actions"><button title="Start session" disabled={busy} onClick={()=>void perform(()=>onStartPlannedSession(item.id))}><Play size={14}/></button><button title="Edit activity" disabled={busy} onClick={()=>void editPlanned(item)}><Pencil size={14}/></button><button title="Reschedule" disabled={busy} onClick={()=>void move(item)}><ChevronRight size={14}/></button><button title="Skip" disabled={busy} onClick={()=>void skip(item)}><SkipForward size={14}/></button><button title="Cancel" disabled={busy} onClick={()=>void perform(()=>cancelSession(item.id))}><XCircle size={14}/></button></div>}
             {item.status==='in_progress'&&<span className="planned-in-progress">IN PROGRESS</span>}
             {item.status==='completed'&&<span className="planned-in-progress"><CheckCircle2 size={13}/> COMPLETED</span>}
           </article>)}</div>}
