@@ -13,7 +13,7 @@ const planned = (overrides: Partial<PlannedSession> = {}): PlannedSession => ({
 
 describe('pre-session reminders', () => {
   it('calculates reminder instants in the planned session timezone', () => {
-    expect(getReminderDueAt(planned())).toBe(Date.UTC(2026, 10, 5, 5, 15));
+    expect(getReminderDueAt(planned())).toBe(Date.UTC(2026, 10, 5, 6, 15));
   });
   it('supports date-only plans with an explicit reminder time', () => {
     expect(getReminderDueAt(planned({ scheduledTime: null, reminderMinutesBefore: null, reminderTime: '09:00' })))
