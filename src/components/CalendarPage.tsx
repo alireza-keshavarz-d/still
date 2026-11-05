@@ -13,7 +13,7 @@ interface CalendarPageProps { onStartPlannedSession: (id: string) => Promise<voi
 export default function CalendarPage({ onStartPlannedSession, completedSessionTitle }: CalendarPageProps) {
   const [items, setItems] = useState<PlannedSession[]>([]);
   const [month, setMonth] = useState(today().slice(0, 7));
-  const [viewMode, setViewMode] = useState<'month' | 'week' | 'agenda'>('month');
+  const [viewMode, setViewMode] = useState<'month' | 'week' | 'agenda'>(() => window.matchMedia('(max-width: 680px)').matches ? 'agenda' : 'month');
   const [selected, setSelected] = useState(today());
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(today());
