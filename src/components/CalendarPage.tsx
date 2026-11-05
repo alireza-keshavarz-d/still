@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Play, CheckCircle2, SkipForward, XCircle } from 'lucide-react';
 import { createPlannedSession, createStudyPlan, getAllPlannedSessions, skipSession, cancelSession, rescheduleSession } from '../data/planningRepository';
 import { startPlannedSession } from '../data/sessionRepository';
-import { monthGridDates } from '../domain/planning/dateMath';
+import { addCalendarDays, monthGridDates } from '../domain/planning/dateMath';
 import { DEFAULT_TIME_ZONE } from '../domain/types';
 import type { PlannedSession } from '../domain/planning/types';
 
@@ -44,7 +44,7 @@ export default function CalendarPage() {
     });
   }
 
-  async function addSequence() {\n    if (!planTitle.trim() || sequence.some((item) => !item.title.trim())) { setError('Enter a plan name and a title for every activity.'); return; }\n    await perform(async () => {\n      const inputs = sequence.map((item, index) => ({ id: item.id, title: item.title, scheduledDate: date, timezone: DEFAULT_TIME_ZONE, schedulingMode: index === 0 ? 'fixed' as const : 'relative' as const, predecessorId: index === 0 ? null : sequence[index - 1].id, intervalDays: index === 0 ? null : Math.max(1, item.daysAfter) }));\n      await createStudyPlan(planTitle, inputs); setPlanTitle(''); setSequence([{ id: crypto.randomUUID(), title: '', daysAfter: 0 }]); setShowSequence(false); setSelected(date); setMonth(date.slice(0,7));\n    });\n  }\n\n  async function skip(item: PlannedSession) {
+  async function addSequence() {\n    if (!planTitle.trim() || sequence.some((item) => !item.title.trim())) { setError('Enter a plan name and a title for every activity.'); return; }\n    await perform(async () => {\n      let activityDate = date;\n      const inputs = sequence.map((item, index) => { if (index > 0) activityDate = addCalendarDays(activityDate, Math.max(1, item.daysAfter)); return { id: item.id, title: item.title, scheduledDate: activityDate, timezone: DEFAULT_TIME_ZONE, schedulingMode: index === 0 ? 'fixed' as const : 'relative' as const, predecessorId: index === 0 ? null : sequence[index - 1].id, intervalDays: index === 0 ? null : Math.max(1, item.daysAfter) }; });\n      await createStudyPlan(planTitle, inputs); setPlanTitle(''); setSequence([{ id: crypto.randomUUID(), title: '', daysAfter: 0 }]); setShowSequence(false); setSelected(date); setMonth(date.slice(0,7));\n    });\n  }\n\n  async function skip(item: PlannedSession) {
     const choice = window.confirm('Keep the remaining dates unchanged? Choose Cancel to recalculate the sequence.');
     await perform(() => skipSession(item.id, choice ? 'keep-dates' : 'recalculate'));
   }
