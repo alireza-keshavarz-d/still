@@ -47,6 +47,7 @@ export async function createPlannedSession(input: PlannedSessionInput, now = Dat
     const existing = await database.plannedSessions.toArray();
     validateDependencyGraph([...existing, session]);
     await database.plannedSessions.add(session);
+    if (session.planId) await database.studyPlans.update(session.planId, { status: 'active', updatedAt: now });
   });
   return session;
 }
@@ -79,12 +80,17 @@ export async function skipSession(id: string, strategy: SkipStrategy, now = Date
     const all = await database.plannedSessions.toArray();
     const next = skipPlannedSession(all, id, strategy, now);
     await database.plannedSessions.bulkPut(next);
+    const target = next.find((item) => item.id === id);
+    if (target?.planId) { const terminal = next.filter((item) => item.planId === target.planId).every((item) => ['completed', 'skipped', 'cancelled'].includes(item.status)); if (terminal) await database.studyPlans.update(target.planId, { status: 'completed', updatedAt: now }); }
   });
 }
 export async function cancelSession(id: string, now = Date.now()): Promise<void> {
-  await database.transaction('rw', database.plannedSessions, async () => {
+  await database.transaction('rw', database.plannedSessions, database.studyPlans, async () => {
     const all = await database.plannedSessions.toArray();
-    await database.plannedSessions.bulkPut(cancelPlannedSession(all, id, now));
+    const next = cancelPlannedSession(all, id, now);
+    await database.plannedSessions.bulkPut(next);
+    const target = next.find((item) => item.id === id);
+    if (target?.planId) { const terminal = next.filter((item) => item.planId === target.planId).every((item) => ['completed', 'skipped', 'cancelled'].includes(item.status)); if (terminal) await database.studyPlans.update(target.planId, { status: 'completed', updatedAt: now }); }
   });
 }
 export async function rescheduleSession(id: string, date: string, cascade: boolean, now = Date.now()): Promise<void> {
