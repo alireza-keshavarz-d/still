@@ -16,7 +16,7 @@ function toPlannedSession(input: PlannedSessionInput, now: number): PlannedSessi
     scheduledDate: input.scheduledDate, scheduledTime: input.scheduledTime ?? null, timezone: input.timezone,
     predecessorId: input.predecessorId ?? null, intervalDays: input.intervalDays ?? null,
     estimatedDurationMinutes: input.estimatedDurationMinutes ?? null, studySessionId: null, completedAt: null,
-    reminderEnabled: input.reminderEnabled ?? true, reminderMinutesBefore: input.reminderMinutesBefore ?? (input.scheduledTime ? 15 : null),
+    reminderEnabled: input.reminderEnabled ?? Boolean(input.scheduledTime || input.reminderTime), reminderMinutesBefore: input.reminderMinutesBefore ?? (input.scheduledTime ? 15 : null),
     reminderTime: input.reminderTime ?? null, skippedAt: null, cancelledAt: null, createdAt: now, updatedAt: now
   };
 }
@@ -59,7 +59,7 @@ export async function updatePlannedSession(id: string, changes: Partial<PlannedS
     const nextInput: PlannedSessionInput = { ...current, ...changes, title: changes.title ?? current.title, scheduledDate: changes.scheduledDate ?? current.scheduledDate, timezone: changes.timezone ?? current.timezone };
     validatePlannedSession(nextInput);
     const all = await database.plannedSessions.toArray();
-    const next = { ...current, ...changes, updatedAt: now } as PlannedSession;
+    const next = { ...current, ...changes, id: current.id, updatedAt: now } as PlannedSession;
     validateDependencyGraph(all.map((item) => item.id === id ? next : item));
     await database.plannedSessions.put(next);
   });
