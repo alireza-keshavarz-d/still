@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Play, CheckCircle2, SkipForward, XCircle } from 'lucide-react';
 import { createPlannedSession, createStudyPlan, getAllPlannedSessions, skipSession, cancelSession, rescheduleSession } from '../data/planningRepository';
-import { startPlannedSession } from '../data/sessionRepository';
 import { addCalendarDays, monthGridDates } from '../domain/planning/dateMath';
 import { DEFAULT_TIME_ZONE } from '../domain/types';
 import type { PlannedSession } from '../domain/planning/types';
@@ -10,7 +9,7 @@ import ReminderMonitor from './ReminderMonitor';
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: DEFAULT_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const monthLabel = (month: string) => new Intl.DateTimeFormat('en', { timeZone: 'UTC', month: 'long', year: 'numeric' }).format(new Date(month + '-01T12:00:00Z'));
 
-export default function CalendarPage() {
+interface CalendarPageProps { onStartPlannedSession: (id: string) => Promise<void>; }\n\nexport default function CalendarPage({ onStartPlannedSession }: CalendarPageProps) {
   const [items, setItems] = useState<PlannedSession[]>([]);
   const [month, setMonth] = useState(today().slice(0, 7));
   const [selected, setSelected] = useState(today());
@@ -94,7 +93,7 @@ export default function CalendarPage() {
         <div className="calendar-agenda-head"><div><div className="eyebrow">AGENDA</div><h3>{new Intl.DateTimeFormat('en',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric'}).format(new Date(selected+'T12:00:00Z'))}</h3></div><span>{selectedItems.length} ACTIVITIES</span></div>
         {selectedItems.length===0?<div className="calendar-empty">Nothing planned for this day.<button className="quiet-button" onClick={() => {setDate(selected);setShowCreate(true);}}>Add an activity <Plus size={13}/></button></div>:
           <div className="planned-list">{selectedItems.map((item)=><article className="planned-card" key={item.id}><div className="planned-card-main"><span className={'planned-status status-'+item.status}></span><div><strong>{item.title}</strong><small>{item.scheduledTime ?? 'Flexible time'}{item.estimatedDurationMinutes ? ' · '+item.estimatedDurationMinutes+' min' : ''} · {item.status.replace('_',' ')}</small></div></div>
-            {item.status==='scheduled'&&<div className="planned-actions"><button title="Start session" disabled={busy} onClick={()=>void perform(()=>startPlannedSession(item.id))}><Play size={14}/></button><button title="Reschedule" disabled={busy} onClick={()=>void move(item)}><ChevronRight size={14}/></button><button title="Skip" disabled={busy} onClick={()=>void skip(item)}><SkipForward size={14}/></button><button title="Cancel" disabled={busy} onClick={()=>void perform(()=>cancelSession(item.id))}><XCircle size={14}/></button></div>}
+            {item.status==='scheduled'&&<div className="planned-actions"><button title="Start session" disabled={busy} onClick={()=>void perform(()=>onStartPlannedSession(item.id))}><Play size={14}/></button><button title="Reschedule" disabled={busy} onClick={()=>void move(item)}><ChevronRight size={14}/></button><button title="Skip" disabled={busy} onClick={()=>void skip(item)}><SkipForward size={14}/></button><button title="Cancel" disabled={busy} onClick={()=>void perform(()=>cancelSession(item.id))}><XCircle size={14}/></button></div>}
             {item.status==='in_progress'&&<span className="planned-in-progress">IN PROGRESS</span>}
             {item.status==='completed'&&<span className="planned-in-progress"><CheckCircle2 size={13}/> COMPLETED</span>}
           </article>)}</div>}
