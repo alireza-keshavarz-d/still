@@ -25,10 +25,11 @@ describe('study planning persistence', () => {
   });
 
   it('links a planned activity to exactly one actual session and completes it with recalculation', async () => {
+    const firstId = crypto.randomUUID();
     const dependentId = crypto.randomUUID();
     const plan = await createStudyPlan('Revision', [
-      { title: 'Read', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' },
-      { id: dependentId, title: 'Practice', scheduledDate: '2026-11-04', timezone: 'Asia/Tehran', schedulingMode: 'relative', predecessorId: 'temporary', intervalDays: 3 }
+      { id: firstId, title: 'Read', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' },
+      { id: dependentId, title: 'Practice', scheduledDate: '2026-11-04', timezone: 'Asia/Tehran', schedulingMode: 'relative', predecessorId: firstId, intervalDays: 3 }
     ], 100);
     const planned = (await getAllPlannedSessions()).find(x => x.planId === plan.id)!;
     const actual = await startPlannedSession(planned.id, Date.UTC(2026, 10, 5, 9));
