@@ -2,6 +2,8 @@ import { database } from './database';
 import type { RecoveryCandidate, StudyInterval, StudySession } from '../domain/types';
 import { DEFAULT_TIME_ZONE } from '../domain/types';
 import { resolveActivityInTransaction } from './activityRepository';
+import { recalculateRelativeSessions } from '../domain/planning/scheduling';
+import { dateKeyAt } from '../domain/planning/dateMath';
 
 export class ActiveSessionExistsError extends Error {
   constructor() {
@@ -76,7 +78,7 @@ export async function resumeSession(sessionId: string, now = Date.now()): Promis
 }
 
 export async function stopSession(sessionId: string, now = Date.now()): Promise<void> {
-  await database.transaction('rw', database.sessions, database.intervals, async () => {
+  await database.transaction('rw', database.sessions, database.intervals, database.plannedSessions, database.studyPlans, async () => {
     const session = await database.sessions.get(sessionId);
     if (!session || session.status === 'completed') throw new Error('Session is already completed or does not exist.');
     if (session.status === 'running') {
@@ -85,6 +87,21 @@ export async function stopSession(sessionId: string, now = Date.now()): Promise<
       await database.intervals.update(interval.id, { endedAt: now, checkpointAt: now });
     }
     await database.sessions.update(sessionId, { status: 'completed', endedAt: now, updatedAt: now });
+    const planned = await database.plannedSessions.where('studySessionId').equals(sessionId).first();
+    if (planned && planned.status === 'in_progress') {
+      await database.plannedSessions.update(planned.id, { status: 'completed', completedAt: now, updatedAt: now });
+      if (planned.planId) {
+        const items = await database.plannedSessions.where('planId').equals(planned.planId).toArray();
+        const recalculated = recalculateRelativeSessions(items);
+        await database.plannedSessions.bulkPut(recalculated.map((item) => ({ ...item, updatedAt: item.scheduledDate !== items.find((entry) => entry.id === item.id)?.scheduledDate ? now : item.updatedAt })));
+        const terminal = recalculated.every((item) => ['completed', 'skipped', 'cancelled'].includes(item.status));
+        if (terminal) await database.studyPlans.update(planned.planId, { status: 'completed', updatedAt: now });
+      } else {
+        const all = await database.plannedSessions.toArray();
+        const recalculated = recalculateRelativeSessions(all);
+        await database.plannedSessions.bulkPut(recalculated);
+      }
+    }
   });
 }
 
