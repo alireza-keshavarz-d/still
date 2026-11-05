@@ -197,7 +197,17 @@ function App() {
     if (succeeded) setCreating(false);
   }
 
-  async function beginPlannedSession(plannedId: string) {\n    const session = await startPlannedSession(plannedId);\n    await reload();\n    setSelectedId(session.id);\n    setCreating(false);\n    setTitle(session.title);\n    setNote(session.note);\n    setView('focus');\n  }\n\n  async function finishSession() {
+  async function beginPlannedSession(plannedId: string) {
+    const session = await startPlannedSession(plannedId);
+    await reload();
+    setSelectedId(session.id);
+    setCreating(false);
+    setTitle(session.title);
+    setNote(session.note);
+    setView('focus');
+  }
+
+  async function finishSession() {
     if (!currentSession) return;
     const session = currentSession;
     const succeeded = await perform(async () => {
