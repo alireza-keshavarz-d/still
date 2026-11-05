@@ -74,7 +74,8 @@ describe('dependency scheduling and transitions', () => {
   });
   it('reschedules selected item and optionally recalculates descendants', () => {
     const items = [item('a'), item('b', { predecessorId: 'a', schedulingMode: 'relative', intervalDays: 3 })];
-    expect(reschedulePlannedSession(items, 'a', '2026-11-10', false).find(x => x.id === 'b')?.scheduledDate).toBe('2026-11-01');\n    expect(reschedulePlannedSession(items, 'a', '2026-11-10', false).find(x => x.id === 'a')?.reminderNotifiedAt).toBeNull();
+    expect(reschedulePlannedSession(items, 'a', '2026-11-10', false).find(x => x.id === 'b')?.scheduledDate).toBe('2026-11-01');
+    expect(reschedulePlannedSession(items, 'a', '2026-11-10', false).find(x => x.id === 'a')?.reminderNotifiedAt).toBeNull();
     expect(reschedulePlannedSession(items, 'a', '2026-11-10', true).find(x => x.id === 'b')?.scheduledDate).toBe('2026-11-13');
   });
 });
