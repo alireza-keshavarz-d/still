@@ -22,7 +22,7 @@ export function skipPlannedSession(items: PlannedSession[], id: string, strategy
 export function cancelPlannedSession(items: PlannedSession[], id: string, now: number): PlannedSession[] {
   const target = items.find((item) => item.id === id);
   if (!target || !['scheduled', 'in_progress'].includes(target.status)) throw new Error('This activity cannot be cancelled.');
-  return items.map((item) => item.id === id ? { ...item, status: 'cancelled', cancelledAt: now, updatedAt: now } : item);
+  return items.map((item) => item.id === id ? { ...item, status: 'cancelled' as const, cancelledAt: now, updatedAt: now } : item);
 }
 
 export function reschedulePlannedSession(items: PlannedSession[], id: string, date: string, cascade: boolean): PlannedSession[] {
