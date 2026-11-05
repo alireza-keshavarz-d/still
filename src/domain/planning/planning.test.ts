@@ -67,14 +67,14 @@ describe('dependency scheduling and transitions', () => {
     expect(result.find(x => x.id === 'done')?.scheduledDate).toBe('2026-11-01');
   });
   it('skips without changing dates or removes skipped node from the chain when requested', () => {
-    const items = [item('a'), item('b', { predecessorId: 'a', schedulingMode: 'relative', intervalDays: 3 }), item('c', { predecessorId: 'b', schedulingMode: 'relative', intervalDays: 2 })];
+    const items = [item('a', { reminderNotifiedAt: 99 }), item('b', { predecessorId: 'a', schedulingMode: 'relative', intervalDays: 3 }), item('c', { predecessorId: 'b', schedulingMode: 'relative', intervalDays: 2 })];
     expect(skipPlannedSession(items, 'b', 'keep-dates', 50).find(x => x.id === 'c')?.predecessorId).toBe('b');
     const recalculated = skipPlannedSession(items, 'b', 'recalculate', 50);
     expect(recalculated.find(x => x.id === 'c')?.predecessorId).toBe('a');
   });
   it('reschedules selected item and optionally recalculates descendants', () => {
     const items = [item('a'), item('b', { predecessorId: 'a', schedulingMode: 'relative', intervalDays: 3 })];
-    expect(reschedulePlannedSession(items, 'a', '2026-11-10', false).find(x => x.id === 'b')?.scheduledDate).toBe('2026-11-01');
+    expect(reschedulePlannedSession(items, 'a', '2026-11-10', false).find(x => x.id === 'b')?.scheduledDate).toBe('2026-11-01');\n    expect(reschedulePlannedSession(items, 'a', '2026-11-10', false).find(x => x.id === 'a')?.reminderNotifiedAt).toBeNull();
     expect(reschedulePlannedSession(items, 'a', '2026-11-10', true).find(x => x.id === 'b')?.scheduledDate).toBe('2026-11-13');
   });
 });
