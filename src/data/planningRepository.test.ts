@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import Dexie from 'dexie';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { database } from './database';
-import { createPlannedSession, createStudyPlan, getAllPlannedSessions, getAllStudyPlans } from './planningRepository';
+import { createPlannedSession, createStudyPlan, getAllPlannedSessions, getAllStudyPlans, updatePlannedSession, skipSession, cancelSession } from './planningRepository';
 import { getAllSessions, startPlannedSession, stopSession } from './sessionRepository';
 
 describe('study planning persistence', () => {
@@ -42,6 +42,25 @@ describe('study planning persistence', () => {
     await expect(createPlannedSession({ title: ' ', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' })).rejects.toThrow();
     expect(await getAllPlannedSessions()).toHaveLength(0);
   });
+  it('edits a scheduled activity and recalculates or preserves its dependencies as requested', async () => {
+    const firstId = crypto.randomUUID();
+    const secondId = crypto.randomUUID();
+    await createStudyPlan('Exam preparation', [
+      { id: firstId, title: 'Read', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' },
+      { id: secondId, title: 'Practice', scheduledDate: '2026-11-04', timezone: 'Asia/Tehran', schedulingMode: 'relative', predecessorId: firstId, intervalDays: 3 }
+    ], 100);
+    await updatePlannedSession(firstId, { title: 'Read notes' }, 200);
+    expect((await getAllPlannedSessions()).find(x => x.id === firstId)?.title).toBe('Read notes');
+    await expect(updatePlannedSession(firstId, { scheduledDate: '2026-02-30' })).rejects.toThrow();
+  });
+
+  it('marks plans complete when all activities are skipped or cancelled', async () => {
+    const plan = await createStudyPlan('Optional review', [{ title: 'Review', scheduledDate: '2026-11-01', timezone: 'Asia/Tehran' }], 100);
+    const planned = (await getAllPlannedSessions())[0];
+    await skipSession(planned.id, 'keep-dates', 200);
+    expect((await getAllStudyPlans()).find(x => x.id === plan.id)?.status).toBe('completed');
+  });
+
   it('upgrades v2 data to v3 without changing existing session and interval records', async () => {
     const name = 'still-v3-migration-' + crypto.randomUUID();
     const legacy = new Dexie(name);
