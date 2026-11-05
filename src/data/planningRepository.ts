@@ -53,12 +53,13 @@ export async function createPlannedSession(input: PlannedSessionInput, now = Dat
 }
 
 export async function updatePlannedSession(id: string, changes: Partial<PlannedSessionInput>, now = Date.now()): Promise<void> {
-  await database.transaction('rw', database.plannedSessions, async () => {
+  await database.transaction('rw', database.plannedSessions, database.studyPlans, async () => {
     const current = await database.plannedSessions.get(id);
     if (!current) throw new Error('Planned activity does not exist.');
     if (current.status !== 'scheduled') throw new Error('Only scheduled activities can be edited.');
     const nextInput: PlannedSessionInput = { ...current, ...changes, title: changes.title ?? current.title, scheduledDate: changes.scheduledDate ?? current.scheduledDate, timezone: changes.timezone ?? current.timezone };
     validatePlannedSession(nextInput);
+    if (nextInput.planId && !await database.studyPlans.get(nextInput.planId)) throw new Error('Study plan does not exist.');
     const all = await database.plannedSessions.toArray();
     const reminderChanged = ['scheduledDate', 'scheduledTime', 'reminderTime', 'reminderEnabled', 'reminderMinutesBefore'].some((key) => key in changes);
     const next = { ...current, ...changes, id: current.id, ...(reminderChanged ? { reminderNotifiedAt: null } : {}), updatedAt: now } as PlannedSession;
