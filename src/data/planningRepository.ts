@@ -76,7 +76,7 @@ export async function getAllStudyPlans(): Promise<StudyPlan[]> { return database
 export async function getAllPlannedSessions(): Promise<PlannedSession[]> { return database.plannedSessions.orderBy('scheduledDate').toArray(); }
 
 export async function skipSession(id: string, strategy: SkipStrategy, now = Date.now()): Promise<void> {
-  await database.transaction('rw', database.plannedSessions, async () => {
+  await database.transaction('rw', database.plannedSessions, database.studyPlans, async () => {
     const all = await database.plannedSessions.toArray();
     const next = skipPlannedSession(all, id, strategy, now);
     await database.plannedSessions.bulkPut(next);
