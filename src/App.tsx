@@ -15,8 +15,9 @@ import {
 } from './domain/time';
 import { DEFAULT_TIME_ZONE } from './domain/types';
 import type { DailyHistoryEntry, RecoveryCandidate, StudyInterval, StudySession } from './domain/types';
+import CalendarPage from './components/CalendarPage';
 
-type View = 'focus' | 'history' | 'insights' | 'settings';
+type View = 'focus' | 'history' | 'calendar' | 'insights' | 'settings';
 const TIME_ZONE = DEFAULT_TIME_ZONE;
 const CHECKPOINT_INTERVAL_MS = 30_000;
 
@@ -265,8 +266,8 @@ function App() {
         <div className="page-intro">
           <div>
             {/* <div className="eyebrow">YOUR PERSONAL TIMEKEEPER</div> */}
-            <h1>{view === 'focus' ? 'Stay with the work.' : view === 'history' ? 'Look back, clearly.' : view === 'settings' ? 'Keep your catalog clear.' : 'Insights, in time.'}</h1>
-            <p>{view === 'focus' ? 'Give your attention to one thing at a time.' : view === 'history' ? 'Every focused interval, accounted for.' : view === 'settings' ? 'Manage the activities attached to your sessions.' : 'A clearer picture of how you spend your focus.'}</p>
+            <h1>{view === 'focus' ? 'Stay with the work.' : view === 'history' ? 'Look back, clearly.' : view === 'settings' ? 'Keep your catalog clear.' : view === 'calendar' ? 'Plan the next step.' : 'Insights, in time.'}</h1>
+            <p>{view === 'focus' ? 'Give your attention to one thing at a time.' : view === 'history' ? 'Every focused interval, accounted for.' : view === 'settings' ? 'Manage the activities attached to your sessions.' : view === 'calendar' ? 'Make space for what you will study next.' : 'A clearer picture of how you spend your focus.'}</p>
           </div>
           <div className="today-date"><CalendarDays size={14} /> {dateLabel(now)}</div>
         </div>
@@ -274,6 +275,7 @@ function App() {
         <nav className="view-tabs" aria-label="Main navigation">
           <button className={view === 'focus' ? 'view-tab active' : 'view-tab'} onClick={() => setView('focus')}><Timer size={16} /> Focus</button>
           <button className={view === 'history' ? 'view-tab active' : 'view-tab'} onClick={() => setView('history')}><History size={16} /> History</button>
+          <button className={view === 'calendar' ? 'view-tab active' : 'view-tab'} onClick={() => setView('calendar')}><CalendarDays size={16} /> Calendar</button>
           <button className={view === 'insights' ? 'view-tab active' : 'view-tab'} onClick={() => setView('insights')}><Sparkles size={16} /> Insights <span className="soon-tag">LATER</span></button>
           <button className={view === 'settings' ? 'view-tab active' : 'view-tab'} onClick={() => setView('settings')}><Pencil size={16} /> Settings</button>
         </nav>
@@ -282,6 +284,8 @@ function App() {
 
         {loading ? (
           <div className="loading-state"><span className="loading-spinner" /> Opening your workspace…</div>
+        ) : view === 'calendar' ? (
+          <CalendarPage />
         ) : view === 'focus' ? (
           <section className="focus-layout">
             <div className={'timer-card ' + (currentSession?.status === 'running' ? 'is-running' : '')}>
