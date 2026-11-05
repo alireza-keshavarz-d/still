@@ -22,7 +22,7 @@ class StillDatabase extends Dexie {
       activities: 'id, &normalizedName, name, createdAt, archivedAt'
     }).upgrade(upgradeLegacyActivityRecords);
     this.version(3).stores({
-      sessions: 'id, activityId, status, startedAt, endedAt, updatedAt',
+      sessions: 'id, activityId, plannedSessionId, status, startedAt, endedAt, updatedAt',
       intervals: 'id, sessionId, startedAt, endedAt, checkpointAt',
       activities: 'id, &normalizedName, name, createdAt, archivedAt',
       studyPlans: 'id, status, createdAt, updatedAt',
