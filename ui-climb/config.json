@@ -1,0 +1,23 @@
+{
+  "editablePaths": ["src", "public", "index.html"],
+  "viewports": [
+    { "name": "mobile", "width": 375, "height": 812 },
+    { "name": "tablet", "width": 768, "height": 1024 },
+    { "name": "desktop", "width": 1440, "height": 900 }
+  ],
+  "colorSchemes": ["dark"],
+  "states": [
+    { "name": "idle", "steps": [] },
+    { "name": "running", "steps": [{ "click": "button:has-text('Start')" }, { "wait": 800 }] },
+    { "name": "paused", "steps": [{ "click": "button:has-text('Start')" }, { "wait": 600 }, { "click": "button:has-text('Pause')" }] },
+    { "name": "history", "steps": [{ "click": "text=History" }] },
+    { "name": "settings", "steps": [{ "click": "text=Settings" }] }
+  ],
+  "thresholds": {
+    "minTapTargetTouch": 44,
+    "minTapTargetPointer": 24,
+    "minFontPx": 12,
+    "maxDistinctFontSizes": 7,
+    "improveMargin": 0.3
+  }
+}

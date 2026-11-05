@@ -1,0 +1,35 @@
+name: UI score
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'ui-climb/**'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Fails if the PR scores below ui-climb/best.json or adds serious a11y violations / breaks scenarios.
+      - run: node ui-climb/score.mjs --out ui-climb/out/ci --check --summary
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-score-screenshots
+          path: ui-climb/out/ci
+          retention-days: 14
