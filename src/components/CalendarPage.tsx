@@ -8,7 +8,9 @@ import type { PlannedSession } from '../domain/planning/types';
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: DEFAULT_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const monthLabel = (month: string) => new Intl.DateTimeFormat('en', { timeZone: 'UTC', month: 'long', year: 'numeric' }).format(new Date(month + '-01T12:00:00Z'));
 
-interface CalendarPageProps { onStartPlannedSession: (id: string) => Promise<void>; }\n\nexport default function CalendarPage({ onStartPlannedSession }: CalendarPageProps) {
+interface CalendarPageProps { onStartPlannedSession: (id: string) => Promise<void>; }
+
+export default function CalendarPage({ onStartPlannedSession }: CalendarPageProps) {
   const [items, setItems] = useState<PlannedSession[]>([]);
   const [month, setMonth] = useState(today().slice(0, 7));
   const [selected, setSelected] = useState(today());
@@ -16,7 +18,10 @@ interface CalendarPageProps { onStartPlannedSession: (id: string) => Promise<voi
   const [date, setDate] = useState(today());
   const [time, setTime] = useState('');
   const [duration, setDuration] = useState('');
-  const [showCreate, setShowCreate] = useState(false);\n  const [showSequence, setShowSequence] = useState(false);\n  const [planTitle, setPlanTitle] = useState('');\n  const [sequence, setSequence] = useState([{ id: crypto.randomUUID(), title: '', daysAfter: 0 }]);
+  const [showCreate, setShowCreate] = useState(false);
+  const [showSequence, setShowSequence] = useState(false);
+  const [planTitle, setPlanTitle] = useState('');
+  const [sequence, setSequence] = useState([{ id: crypto.randomUUID(), title: '', daysAfter: 0 }]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -43,7 +48,16 @@ interface CalendarPageProps { onStartPlannedSession: (id: string) => Promise<voi
     });
   }
 
-  async function addSequence() {\n    if (!planTitle.trim() || sequence.some((item) => !item.title.trim())) { setError('Enter a plan name and a title for every activity.'); return; }\n    await perform(async () => {\n      let activityDate = date;\n      const inputs = sequence.map((item, index) => { if (index > 0) activityDate = addCalendarDays(activityDate, Math.max(1, item.daysAfter)); return { id: item.id, title: item.title, scheduledDate: activityDate, timezone: DEFAULT_TIME_ZONE, schedulingMode: index === 0 ? 'fixed' as const : 'relative' as const, predecessorId: index === 0 ? null : sequence[index - 1].id, intervalDays: index === 0 ? null : Math.max(1, item.daysAfter) }; });\n      await createStudyPlan(planTitle, inputs); setPlanTitle(''); setSequence([{ id: crypto.randomUUID(), title: '', daysAfter: 0 }]); setShowSequence(false); setSelected(date); setMonth(date.slice(0,7));\n    });\n  }\n\n  async function skip(item: PlannedSession) {
+  async function addSequence() {
+    if (!planTitle.trim() || sequence.some((item) => !item.title.trim())) { setError('Enter a plan name and a title for every activity.'); return; }
+    await perform(async () => {
+      let activityDate = date;
+      const inputs = sequence.map((item, index) => { if (index > 0) activityDate = addCalendarDays(activityDate, Math.max(1, item.daysAfter)); return { id: item.id, title: item.title, scheduledDate: activityDate, timezone: DEFAULT_TIME_ZONE, schedulingMode: index === 0 ? 'fixed' as const : 'relative' as const, predecessorId: index === 0 ? null : sequence[index - 1].id, intervalDays: index === 0 ? null : Math.max(1, item.daysAfter) }; });
+      await createStudyPlan(planTitle, inputs); setPlanTitle(''); setSequence([{ id: crypto.randomUUID(), title: '', daysAfter: 0 }]); setShowSequence(false); setSelected(date); setMonth(date.slice(0,7));
+    });
+  }
+
+  async function skip(item: PlannedSession) {
     const choice = window.confirm('Keep the remaining dates unchanged? Choose Cancel to recalculate the sequence.');
     await perform(() => skipSession(item.id, choice ? 'keep-dates' : 'recalculate'));
   }
