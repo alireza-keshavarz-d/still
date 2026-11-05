@@ -36,6 +36,10 @@ describe('study planning persistence', () => {
     expect(completed?.status).toBe('completed');
     expect(completed?.completedAt).toBe(Date.UTC(2026, 10, 5, 10));
     expect((await getAllStudyPlans()).find(x => x.id === plan.id)?.status).toBe('completed');
+    const secondPlan = await createStudyPlan('Cancel review', [{ title: 'Review', scheduledDate: '2026-11-02', timezone: 'Asia/Tehran' }], 300);
+    const secondItem = (await getAllPlannedSessions()).find(x => x.planId === secondPlan.id)!;
+    await cancelSession(secondItem.id, 400);
+    expect((await getAllStudyPlans()).find(x => x.id === secondPlan.id)?.status).toBe('completed');
   });
 
   it('rejects invalid planned activity data without persisting it', async () => {
