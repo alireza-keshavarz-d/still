@@ -34,7 +34,7 @@ export default function CalendarPage({ onStartPlannedSession, completedSessionTi
   const selectedItems = items.filter((item) => item.scheduledDate === selected).sort((a,b) => (a.scheduledTime ?? '').localeCompare(b.scheduledTime ?? ''));
   const weekStart = addCalendarDays(selected, -new Date(selected + 'T12:00:00Z').getUTCDay());
   const weekDays = Array.from({ length: 7 }, (_, index) => addCalendarDays(weekStart, index));
-  const agendaItems = viewMode === 'agenda' ? items.filter((item) => item.status !== 'cancelled').sort((a,b) => a.scheduledDate.localeCompare(b.scheduledDate)) : selectedItems;
+  const agendaItems = viewMode === 'agenda' ? items.filter((item) => item.scheduledDate >= today() && !['cancelled', 'skipped'].includes(item.status)).sort((a,b) => a.scheduledDate.localeCompare(b.scheduledDate)) : selectedItems;
   const countFor = (day: string) => items.filter((item) => item.scheduledDate === day && item.status !== 'cancelled').length;
 
   async function perform(action: () => Promise<unknown>) {
