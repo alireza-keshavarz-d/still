@@ -11,8 +11,15 @@ export function skipPlannedSession(items: PlannedSession[], id: string, strategy
     ? { ...item, status: 'skipped' as const, skippedAt: now, updatedAt: now }
     : { ...item });
   if (strategy === 'recalculate') {
+    const byId = new Map(items.map((item) => [item.id, item]));
+    let predecessorId = target.predecessorId;
+    while (predecessorId) {
+      const predecessor = byId.get(predecessorId);
+      if (!predecessor || (predecessor.status !== 'skipped' && predecessor.status !== 'cancelled')) break;
+      predecessorId = predecessor.predecessorId;
+    }
     next = next.map((item) => item.predecessorId === id
-      ? { ...item, predecessorId: target.predecessorId, schedulingMode: target.predecessorId ? item.schedulingMode : 'fixed', intervalDays: target.predecessorId ? item.intervalDays : null }
+      ? { ...item, predecessorId, schedulingMode: predecessorId ? item.schedulingMode : 'fixed', intervalDays: predecessorId ? item.intervalDays : null }
       : item);
     next = recalculateRelativeSessions(next);
   }
