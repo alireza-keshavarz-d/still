@@ -3,7 +3,6 @@ import type { RecoveryCandidate, StudyInterval, StudySession } from '../domain/t
 import { DEFAULT_TIME_ZONE } from '../domain/types';
 import { resolveActivityInTransaction } from './activityRepository';
 import { recalculateRelativeSessions } from '../domain/planning/scheduling';
-import { dateKeyAt } from '../domain/planning/dateMath';
 
 export class ActiveSessionExistsError extends Error {
   constructor() {
