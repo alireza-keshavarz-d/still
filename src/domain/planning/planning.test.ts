@@ -55,13 +55,14 @@ describe('dependency scheduling and transitions', () => {
   it('recalculates downstream relative dates from actual completion and preserves fixed or terminal dates', () => {
     const items = [
       item('a', { status: 'completed', completedAt: Date.UTC(2026, 10, 5) }),
-      item('b', { schedulingMode: 'relative', predecessorId: 'a', intervalDays: 3 }),
+      item('b', { schedulingMode: 'relative', predecessorId: 'a', intervalDays: 3, reminderNotifiedAt: 123 }),
       item('c', { schedulingMode: 'relative', predecessorId: 'b', intervalDays: 7 }),
       item('fixed', { scheduledDate: '2026-11-20' }),
       item('done', { status: 'completed', schedulingMode: 'relative', predecessorId: 'a', intervalDays: 2 })
     ];
     const result = recalculateRelativeSessions(items);
     expect(result.find(x => x.id === 'b')?.scheduledDate).toBe('2026-11-08');
+    expect(result.find(x => x.id === 'b')?.reminderNotifiedAt).toBeNull();
     expect(result.find(x => x.id === 'c')?.scheduledDate).toBe('2026-11-15');
     expect(result.find(x => x.id === 'fixed')?.scheduledDate).toBe('2026-11-20');
     expect(result.find(x => x.id === 'done')?.scheduledDate).toBe('2026-11-01');
