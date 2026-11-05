@@ -112,7 +112,7 @@ export default function CalendarPage({ onStartPlannedSession, completedSessionTi
     </form>}
     <div className={viewMode === 'agenda' ? 'calendar-layout agenda-only' : 'calendar-layout'}>
       {viewMode === 'month' && <div className="calendar-month">
-        <div className="calendar-month-head"><button aria-label="Previous month" onClick={() => { const d=new Date(month+'-01T12:00:00Z'); d.setUTCMonth(d.getUTCMonth()-1); setMonth(d.toISOString().slice(0,7)); }}><ChevronLeft size={17}/></button><h3>{monthLabel(month)}</h3><button aria-label="Next month" onClick={() => { const d=new Date(month+'-01T12:00:00Z'); d.setUTCMonth(d.getUTCMonth()+1); setMonth(d.toISOString().slice(0,7)); }}><ChevronRight size={17}/></button></div>
+        <div className="calendar-month-head"><button aria-label="Previous month" onClick={() => { const d=new Date(month+'-01T12:00:00Z'); d.setUTCMonth(d.getUTCMonth()-1); setMonth(d.toISOString().slice(0,7)); setSelected(d.toISOString().slice(0,10)); }}><ChevronLeft size={17}/></button><h3>{monthLabel(month)}</h3><button aria-label="Next month" onClick={() => { const d=new Date(month+'-01T12:00:00Z'); d.setUTCMonth(d.getUTCMonth()+1); setMonth(d.toISOString().slice(0,7)); setSelected(d.toISOString().slice(0,10)); }}><ChevronRight size={17}/></button></div>
         <div className="calendar-grid">{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day) => <span className="calendar-weekday" key={day}>{day}</span>)}
           {days.map((day) => <button key={day} className={'calendar-day'+(day.slice(0,7)!==month?' outside':'')+(day===selected?' selected':'')+(day===today()?' today':'')} onClick={() => setSelected(day)}><span>{Number(day.slice(-2))}</span>{countFor(day)>0&&<i>{countFor(day)}</i>}</button>)}
         </div>
