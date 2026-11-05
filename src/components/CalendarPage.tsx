@@ -62,7 +62,17 @@ export default function CalendarPage({ onStartPlannedSession, completedSessionTi
     });
   }
 
-  async function editPlanned(item: PlannedSession) {\n    const nextTitle = window.prompt('Activity title', item.title);\n    if (nextTitle === null) return;\n    const nextDate = window.prompt('Scheduled date (YYYY-MM-DD)', item.scheduledDate);\n    if (nextDate === null) return;\n    const nextTime = window.prompt('Start time (HH:mm), or leave blank for flexible time', item.scheduledTime ?? '');\n    if (nextTime === null) return;\n    await perform(() => updatePlannedSession(item.id, { title: nextTitle, scheduledDate: nextDate, scheduledTime: nextTime || null }));\n  }\n\n  async function skip(item: PlannedSession) {
+  async function editPlanned(item: PlannedSession) {
+    const nextTitle = window.prompt('Activity title', item.title);
+    if (nextTitle === null) return;
+    const nextDate = window.prompt('Scheduled date (YYYY-MM-DD)', item.scheduledDate);
+    if (nextDate === null) return;
+    const nextTime = window.prompt('Start time (HH:mm), or leave blank for flexible time', item.scheduledTime ?? '');
+    if (nextTime === null) return;
+    await perform(() => updatePlannedSession(item.id, { title: nextTitle, scheduledDate: nextDate, scheduledTime: nextTime || null }));
+  }
+
+  async function skip(item: PlannedSession) {
     const choice = window.confirm('Keep the remaining dates unchanged? Choose Cancel to recalculate the sequence.');
     await perform(() => skipSession(item.id, choice ? 'keep-dates' : 'recalculate'));
   }
