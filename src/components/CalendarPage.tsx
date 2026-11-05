@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Play, CheckCircle2, SkipForward, XCircle } from 'lucide-react';
-import { createPlannedSession, getAllPlannedSessions, skipSession, cancelSession, rescheduleSession } from '../data/planningRepository';
+import { createPlannedSession, createStudyPlan, getAllPlannedSessions, skipSession, cancelSession, rescheduleSession } from '../data/planningRepository';
 import { startPlannedSession } from '../data/sessionRepository';
 import { monthGridDates } from '../domain/planning/dateMath';
 import { DEFAULT_TIME_ZONE } from '../domain/types';
@@ -17,7 +17,7 @@ export default function CalendarPage() {
   const [date, setDate] = useState(today());
   const [time, setTime] = useState('');
   const [duration, setDuration] = useState('');
-  const [showCreate, setShowCreate] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);\n  const [showSequence, setShowSequence] = useState(false);\n  const [planTitle, setPlanTitle] = useState('');\n  const [sequence, setSequence] = useState([{ id: crypto.randomUUID(), title: '', daysAfter: 0 }]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -44,7 +44,7 @@ export default function CalendarPage() {
     });
   }
 
-  async function skip(item: PlannedSession) {
+  async function addSequence() {\n    if (!planTitle.trim() || sequence.some((item) => !item.title.trim())) { setError('Enter a plan name and a title for every activity.'); return; }\n    await perform(async () => {\n      const inputs = sequence.map((item, index) => ({ id: item.id, title: item.title, scheduledDate: date, timezone: DEFAULT_TIME_ZONE, schedulingMode: index === 0 ? 'fixed' as const : 'relative' as const, predecessorId: index === 0 ? null : sequence[index - 1].id, intervalDays: index === 0 ? null : Math.max(1, item.daysAfter) }));\n      await createStudyPlan(planTitle, inputs); setPlanTitle(''); setSequence([{ id: crypto.randomUUID(), title: '', daysAfter: 0 }]); setShowSequence(false); setSelected(date); setMonth(date.slice(0,7));\n    });\n  }\n\n  async function skip(item: PlannedSession) {
     const choice = window.confirm('Keep the remaining dates unchanged? Choose Cancel to recalculate the sequence.');
     await perform(() => skipSession(item.id, choice ? 'keep-dates' : 'recalculate'));
   }
@@ -60,9 +60,16 @@ export default function CalendarPage() {
   return <section className="calendar-page">
     <div className="calendar-heading">
       <div><div className="eyebrow">YOUR STUDY SCHEDULE</div><h2>Calendar</h2></div>
-      <button className="primary-button" onClick={() => { setDate(selected); setShowCreate((v) => !v); }}><Plus size={15}/> Plan session</button>
+      <div className="calendar-heading-actions"><button className="quiet-button" onClick={() => { setDate(selected); setShowSequence((v) => !v); setShowCreate(false); }}>Build a sequence</button><button className="primary-button" onClick={() => { setDate(selected); setShowCreate((v) => !v); setShowSequence(false); }}><Plus size={15}/> Plan session</button></div>
     </div>
     {error && <div className="error-banner" role="alert">{error}</div>}
+    {showSequence && <form className="calendar-create" onSubmit={(event) => { event.preventDefault(); void addSequence(); }}>
+      <div className="eyebrow">LEARNING SEQUENCE</div><h3 className="sequence-title">Plan what comes next</h3>
+      <label className="field-label" htmlFor="plan-title">PLAN NAME</label><input id="plan-title" className="title-input" value={planTitle} onChange={(e) => setPlanTitle(e.target.value)} placeholder="e.g. Cell biology revision"/>
+      <label className="field-label" htmlFor="sequence-start">FIRST ACTIVITY DATE</label><input id="sequence-start" type="date" value={date} onChange={(e) => setDate(e.target.value)} required/>
+      {sequence.map((item,index)=><div className="sequence-row" key={item.id}><label>ACTIVITY {index+1}<input className="title-input" value={item.title} onChange={(e)=>setSequence((rows)=>rows.map((row,i)=>i===index?{...row,title:e.target.value}:row))} placeholder={index===0?'Read the chapter':'Practice questions'}/></label>{index>0&&<label>DAYS AFTER PREVIOUS<input type="number" min="1" max="365" value={item.daysAfter} onChange={(e)=>setSequence((rows)=>rows.map((row,i)=>i===index?{...row,daysAfter:Number(e.target.value)}:row))}/></label>}<button type="button" className="sequence-remove" disabled={sequence.length===1} onClick={()=>setSequence((rows)=>rows.filter((row)=>row.id!==item.id))}>Remove</button></div>)}
+      <div className="calendar-form-actions"><button type="button" className="quiet-button" onClick={()=>setSequence((rows)=>[...rows,{id:crypto.randomUUID(),title:'',daysAfter:3}])}>Add activity</button><button className="primary-button" type="submit" disabled={busy}>Save sequence</button><button type="button" className="quiet-button" onClick={()=>setShowSequence(false)}>Cancel</button></div>
+    </form>}
     {showCreate && <form className="calendar-create" onSubmit={(event) => { event.preventDefault(); void add(); }}>
       <label className="field-label" htmlFor="planned-title">ACTIVITY</label>
       <input id="planned-title" className="title-input" value={title} maxLength={120} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Review chapter 4"/>
