@@ -47,6 +47,7 @@ function App() {
   const [error, setError] = useState('');
   const [recovery, setRecovery] = useState<RecoveryCandidate | null>(null);
   const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
+  const [lastCompletedTitle, setLastCompletedTitle] = useState<string | null>(null);
 
   const currentSession = !creating ? sessions.find((session) => session.id === selectedId) : undefined;
   const runningSession = sessions.find((session) => session.status === 'running');
@@ -216,6 +217,7 @@ function App() {
       await stopSession(session.id);
     });
     if (succeeded) {
+      setLastCompletedTitle(session.title);
       setSelectedId(null);
       setCreating(true);
       setTitle('Study session');
@@ -297,7 +299,7 @@ function App() {
         {loading ? (
           <div className="loading-state"><span className="loading-spinner" /> Opening your workspace…</div>
         ) : view === 'calendar' ? (
-          <CalendarPage onStartPlannedSession={beginPlannedSession} />
+          <CalendarPage onStartPlannedSession={beginPlannedSession} completedSessionTitle={lastCompletedTitle} />
         ) : view === 'focus' ? (
           <section className="focus-layout">
             <div className={'timer-card ' + (currentSession?.status === 'running' ? 'is-running' : '')}>
