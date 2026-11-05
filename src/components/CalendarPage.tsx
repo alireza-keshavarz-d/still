@@ -65,11 +65,9 @@ export default function CalendarPage({ onStartPlannedSession, completedSessionTi
   async function editPlanned(item: PlannedSession) {
     const nextTitle = window.prompt('Activity title', item.title);
     if (nextTitle === null) return;
-    const nextDate = window.prompt('Scheduled date (YYYY-MM-DD)', item.scheduledDate);
-    if (nextDate === null) return;
     const nextTime = window.prompt('Start time (HH:mm), or leave blank for flexible time', item.scheduledTime ?? '');
     if (nextTime === null) return;
-    await perform(() => updatePlannedSession(item.id, { title: nextTitle, scheduledDate: nextDate, scheduledTime: nextTime || null }));
+    await perform(() => updatePlannedSession(item.id, { title: nextTitle, scheduledTime: nextTime || null }));
   }
 
   async function skip(item: PlannedSession) {
