@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCalendarDays, dateKeyAt, monthGridDates, isValidDateKey } from './dateMath';
+import { addCalendarDays, dateKeyAt, monthGridDates, isValidDateKey, isValidTime, assertTimeZone } from './dateMath';
 import { validatePlannedSession } from './validation';
 import { validateDependencyGraph } from './dependencies';
 import { recalculateRelativeSessions } from './scheduling';
@@ -17,6 +17,10 @@ const item = (id: string, overrides: Partial<PlannedSession> = {}): PlannedSessi
 describe('planning date math', () => {
   it('validates dates and handles leap days and year boundaries', () => {
     expect(isValidDateKey('2024-02-29')).toBe(true);
+    expect(isValidTime('23:59')).toBe(true);
+    expect(isValidTime('24:00')).toBe(false);
+    expect(() => assertTimeZone('Mars/Olympus')).toThrow();
+    expect(() => assertTimeZone('Asia/Tehran')).not.toThrow();
     expect(isValidDateKey('2026-02-29')).toBe(false);
     expect(addCalendarDays('2024-02-28', 1)).toBe('2024-02-29');
     expect(addCalendarDays('2026-12-31', 1)).toBe('2027-01-01');
@@ -34,6 +38,7 @@ describe('planned session validation', () => {
   const valid: PlannedSessionInput = { title: 'Read chapter', scheduledDate: '2026-11-05', timezone: 'Asia/Tehran' };
   it('requires title, valid date and timezone', () => {
     expect(() => validatePlannedSession({ ...valid, title: ' ' })).toThrow(/title/);
+    expect(() => validatePlannedSession({ ...valid, title: 'x'.repeat(121) })).toThrow(/120 characters/);
     expect(() => validatePlannedSession({ ...valid, scheduledDate: '2026-02-30' })).toThrow(/date/);
     expect(() => validatePlannedSession({ ...valid, timezone: 'Mars/Olympus' })).toThrow(/timezone/);
   });
@@ -43,6 +48,7 @@ describe('planned session validation', () => {
     expect(() => validatePlannedSession({ ...valid, scheduledTime: '25:90' })).toThrow(/time/);
     expect(() => validatePlannedSession({ ...valid, estimatedDurationMinutes: 1441 })).toThrow(/duration/);
     expect(() => validatePlannedSession({ ...valid, reminderMinutesBefore: -1 })).toThrow(/Reminder/);
+    expect(() => validatePlannedSession({ ...valid, reminderTime: '26:00' })).toThrow(/Reminder time/);
   });
 });
 
