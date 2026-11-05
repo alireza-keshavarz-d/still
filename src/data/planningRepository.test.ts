@@ -56,7 +56,7 @@ describe('study planning persistence', () => {
     const upgraded = new Dexie(name);
     upgraded.version(1).stores({ sessions: 'id, status, startedAt, endedAt, updatedAt', intervals: 'id, sessionId, startedAt, endedAt, checkpointAt' });
     upgraded.version(2).stores({ sessions: 'id, activityId, status, startedAt, endedAt, updatedAt', intervals: 'id, sessionId, startedAt, endedAt, checkpointAt', activities: 'id, &normalizedName, name, createdAt, archivedAt' });
-    upgraded.version(3).stores({ sessions: 'id, activityId, status, startedAt, endedAt, updatedAt', intervals: 'id, sessionId, startedAt, endedAt, checkpointAt', activities: 'id, &normalizedName, name, createdAt, archivedAt', studyPlans: 'id, status, createdAt, updatedAt', plannedSessions: 'id, planId, scheduledDate, status, predecessorId, studySessionId, [planId+scheduledDate]' });
+    upgraded.version(3).stores({ sessions: 'id, activityId, plannedSessionId, status, startedAt, endedAt, updatedAt', intervals: 'id, sessionId, startedAt, endedAt, checkpointAt', activities: 'id, &normalizedName, name, createdAt, archivedAt', studyPlans: 'id, status, createdAt, updatedAt', plannedSessions: 'id, planId, scheduledDate, status, predecessorId, studySessionId, [planId+scheduledDate]' });
     try {
       await upgraded.open();
       expect(await upgraded.table('sessions').get('s1')).toEqual(session);
