@@ -17,6 +17,7 @@ export default function CalendarPage({ onStartPlannedSession }: CalendarPageProp
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(today());
   const [time, setTime] = useState('');
+  const [reminderTime, setReminderTime] = useState('');
   const [duration, setDuration] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const [showSequence, setShowSequence] = useState(false);
@@ -43,8 +44,8 @@ export default function CalendarPage({ onStartPlannedSession }: CalendarPageProp
     if (!title.trim()) { setError('Activity title is required.'); return; }
     await perform(async () => {
       await createPlannedSession({ title, scheduledDate: date, scheduledTime: time || null, timezone: DEFAULT_TIME_ZONE,
-        estimatedDurationMinutes: duration ? Number(duration) : null, reminderEnabled: Boolean(time), reminderMinutesBefore: time ? 15 : null });
-      setTitle(''); setTime(''); setDuration(''); setShowCreate(false); setSelected(date); setMonth(date.slice(0,7));
+        estimatedDurationMinutes: duration ? Number(duration) : null, reminderEnabled: Boolean(time || reminderTime), reminderMinutesBefore: time ? 15 : null, reminderTime: !time && reminderTime ? reminderTime : null });
+      setTitle(''); setTime(''); setDuration(''); setReminderTime(''); setShowCreate(false); setSelected(date); setMonth(date.slice(0,7));
     });
   }
 
@@ -91,6 +92,8 @@ export default function CalendarPage({ onStartPlannedSession }: CalendarPageProp
         <label>TIME (OPTIONAL)<input type="time" value={time} onChange={(e) => setTime(e.target.value)}/></label>
         <label>DURATION (OPTIONAL)<input type="number" min="1" max="1440" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="Minutes"/></label>
       </div>
+      {!time && <label className="reminder-time-field">REMINDER TIME ON THIS DATE (OPTIONAL)<input type="time" value={reminderTime} onChange={(e) => setReminderTime(e.target.value)}/></label>}
+      {time && <p className="reminder-note">A reminder is scheduled 15 minutes before this time. Browser notifications require permission; otherwise Still shows an in-app reminder while open.</p>}
       <div className="calendar-form-actions"><button className="primary-button" type="submit" disabled={busy}>Save planned session</button><button className="quiet-button" type="button" onClick={() => setShowCreate(false)}>Cancel</button></div>
     </form>}
     <div className="calendar-layout">
