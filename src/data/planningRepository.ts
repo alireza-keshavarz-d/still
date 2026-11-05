@@ -100,3 +100,7 @@ export async function recalculatePlan(planId: string, now = Date.now()): Promise
     await persistRecalculation(items, now);
   });
 }
+
+export async function markReminderNotified(id: string, now = Date.now()): Promise<void> {
+  await database.plannedSessions.update(id, { reminderNotifiedAt: now, updatedAt: now });
+}
