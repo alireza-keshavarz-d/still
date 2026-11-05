@@ -17,7 +17,7 @@ function toPlannedSession(input: PlannedSessionInput, now: number): PlannedSessi
     predecessorId: input.predecessorId ?? null, intervalDays: input.intervalDays ?? null,
     estimatedDurationMinutes: input.estimatedDurationMinutes ?? null, studySessionId: null, completedAt: null,
     reminderEnabled: input.reminderEnabled ?? Boolean(input.scheduledTime || input.reminderTime), reminderMinutesBefore: input.reminderMinutesBefore ?? (input.scheduledTime ? 15 : null),
-    reminderTime: input.reminderTime ?? null, skippedAt: null, cancelledAt: null, createdAt: now, updatedAt: now
+    reminderTime: input.reminderTime ?? null, reminderNotifiedAt: null, skippedAt: null, cancelledAt: null, createdAt: now, updatedAt: now
   };
 }
 
