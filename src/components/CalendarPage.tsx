@@ -78,7 +78,7 @@ export default function CalendarPage({ onStartPlannedSession }: CalendarPageProp
   return <section className="calendar-page">
     <div className="calendar-heading">
       <div><div className="eyebrow">YOUR STUDY SCHEDULE</div><h2>Calendar</h2></div>
-      <div className="calendar-heading-actions"><button className="quiet-button" onClick={() => { setDate(selected); setShowSequence((v) => !v); setShowCreate(false); }}>Build a sequence</button><button className="primary-button" onClick={() => { setDate(selected); setShowCreate((v) => !v); setShowSequence(false); }}><Plus size={15}/> Plan session</button></div>
+      <div className="calendar-heading-actions"><div className="calendar-view-switch" aria-label="Calendar view">{(['month', 'week', 'agenda'] as const).map((mode) => <button key={mode} className={viewMode === mode ? 'active' : ''} onClick={() => setViewMode(mode)}>{mode}</button>)}</div><button className="quiet-button" onClick={() => { setDate(selected); setShowSequence((v) => !v); setShowCreate(false); }}>Build a sequence</button><button className="primary-button" onClick={() => { setDate(selected); setShowCreate((v) => !v); setShowSequence(false); }}><Plus size={15}/> Plan session</button></div>
     </div>
     {error && <div className="error-banner" role="alert">{error}</div>}
     {showSequence && <form className="calendar-create" onSubmit={(event) => { event.preventDefault(); void addSequence(); }}>
