@@ -4,7 +4,6 @@ import { createPlannedSession, createStudyPlan, getAllPlannedSessions, skipSessi
 import { addCalendarDays, monthGridDates } from '../domain/planning/dateMath';
 import { DEFAULT_TIME_ZONE } from '../domain/types';
 import type { PlannedSession } from '../domain/planning/types';
-import ReminderMonitor from './ReminderMonitor';
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: DEFAULT_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 const monthLabel = (month: string) => new Intl.DateTimeFormat('en', { timeZone: 'UTC', month: 'long', year: 'numeric' }).format(new Date(month + '-01T12:00:00Z'));
@@ -58,7 +57,6 @@ interface CalendarPageProps { onStartPlannedSession: (id: string) => Promise<voi
   }
 
   return <section className="calendar-page">
-    <ReminderMonitor />
     <div className="calendar-heading">
       <div><div className="eyebrow">YOUR STUDY SCHEDULE</div><h2>Calendar</h2></div>
       <div className="calendar-heading-actions"><button className="quiet-button" onClick={() => { setDate(selected); setShowSequence((v) => !v); setShowCreate(false); }}>Build a sequence</button><button className="primary-button" onClick={() => { setDate(selected); setShowCreate((v) => !v); setShowSequence(false); }}><Plus size={15}/> Plan session</button></div>
