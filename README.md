@@ -34,7 +34,7 @@ npm run test:coverage # includes enforced activity-core coverage thresholds
 npm run build
 ```
 
-The coverage command reports V8 coverage and enforces the activity-core thresholds used by CI.
+The coverage command reports V8 coverage and enforces thresholds for the activity catalog, planning/scheduling domain, planning repository, and reminder scheduling.
 
 ## Architecture
 
