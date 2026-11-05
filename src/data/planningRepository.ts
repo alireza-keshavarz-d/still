@@ -60,7 +60,8 @@ export async function updatePlannedSession(id: string, changes: Partial<PlannedS
     const nextInput: PlannedSessionInput = { ...current, ...changes, title: changes.title ?? current.title, scheduledDate: changes.scheduledDate ?? current.scheduledDate, timezone: changes.timezone ?? current.timezone };
     validatePlannedSession(nextInput);
     const all = await database.plannedSessions.toArray();
-    const reminderChanged = ['scheduledDate', 'scheduledTime', 'reminderTime', 'reminderEnabled', 'reminderMinutesBefore'].some((key) => key in changes);\n    const next = { ...current, ...changes, id: current.id, ...(reminderChanged ? { reminderNotifiedAt: null } : {}), updatedAt: now } as PlannedSession;
+    const reminderChanged = ['scheduledDate', 'scheduledTime', 'reminderTime', 'reminderEnabled', 'reminderMinutesBefore'].some((key) => key in changes);
+    const next = { ...current, ...changes, id: current.id, ...(reminderChanged ? { reminderNotifiedAt: null } : {}), updatedAt: now } as PlannedSession;
     validateDependencyGraph(all.map((item) => item.id === id ? next : item));
     await database.plannedSessions.put(next);
   });
