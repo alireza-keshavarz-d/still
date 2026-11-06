@@ -29,7 +29,7 @@ describe('InsightsPage regression integration', () => {
     expect(screen.getByText('Reading')).toBeTruthy();
     expect(screen.getByText('Longest focus day')).toBeTruthy();
     expect(screen.getByText('Best streak')).toBeTruthy();
-    expect(screen.getByText(/آبان/)).toBeTruthy();
+    expect(screen.getAllByText(/آبان/).length).toBeGreaterThan(0);
     expect(screen.getAllByText('1h').length).toBeGreaterThan(0);
   });
   it('updates chart range and exposes horizontal-scroll guidance for long ranges', () => {

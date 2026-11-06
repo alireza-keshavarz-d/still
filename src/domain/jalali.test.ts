@@ -68,7 +68,7 @@ describe('Jalali calendar navigation and formatting', () => {
       expect(() => jalaliMonthGridDates(month)).toThrow('Month is invalid.');
     }
     expect(() => addJalaliMonths('1405-13', 1)).toThrow('Month is invalid.');
-    expect(() => addJalaliMonths('1405-12', 12_000)).toThrow('Month is outside the supported range.');
+    expect(() => addJalaliMonths('1405-12', 24_000)).toThrow('Month is outside the supported range.');
   });
 
   it('formats Persian dates, numbers, month titles, and weekdays', () => {

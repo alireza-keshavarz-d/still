@@ -18,7 +18,7 @@ const gregorianToJalaliCache = new Map<string, JalaliDate>();
 export interface JalaliDate { year: number; month: number; day: number }
 
 const pad = (value: number) => String(value).padStart(2, '0');
-const persianDigits = (value: string) => value.replace(/\\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]);
+const persianDigits = (value: string) => value.replace(/\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]);
 const dateKey = (year: number, month: number, day: number) => `${year}-${pad(month)}-${pad(day)}`;
 const epochDay = (value: string) => {
   const [year, month, day] = value.split('-').map(Number);
