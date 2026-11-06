@@ -17,6 +17,7 @@ import { DEFAULT_TIME_ZONE } from './domain/types';
 import type { DailyHistoryEntry, RecoveryCandidate, StudyInterval, StudySession } from './domain/types';
 import CalendarPage from './components/CalendarPage';
 import ReminderMonitor from './components/ReminderMonitor';
+import InsightsPage from './components/InsightsPage';
 
 type View = 'focus' | 'history' | 'calendar' | 'insights' | 'settings';
 const TIME_ZONE = DEFAULT_TIME_ZONE;
@@ -290,7 +291,7 @@ function App() {
           <button className={view === 'focus' ? 'view-tab active' : 'view-tab'} onClick={() => setView('focus')}><Timer size={16} /> Focus</button>
           <button className={view === 'history' ? 'view-tab active' : 'view-tab'} onClick={() => setView('history')}><History size={16} /> History</button>
           <button className={view === 'calendar' ? 'view-tab active' : 'view-tab'} onClick={() => setView('calendar')}><CalendarDays size={16} /> Calendar</button>
-          <button className={view === 'insights' ? 'view-tab active' : 'view-tab'} onClick={() => setView('insights')}><Sparkles size={16} /> Insights <span className="soon-tag">LATER</span></button>
+          <button className={view === 'insights' ? 'view-tab active' : 'view-tab'} onClick={() => setView('insights')}><Sparkles size={16} /> Insights</button>
           <button className={view === 'settings' ? 'view-tab active' : 'view-tab'} onClick={() => setView('settings')}><Pencil size={16} /> Settings</button>
         </nav>
 
@@ -395,14 +396,9 @@ function App() {
           </section>
         ) : view === 'settings' ? (
           <ActivitySettings />
-        ) : (
-          <section className="insights-placeholder">
-            <div className="insights-orb"><Sparkles size={25} /></div><div className="eyebrow">A FUTURE VIEW</div>
-            <h2>Meaningful patterns, not noise.</h2>
-            <p>Analytics will be designed around your actual study history. First, every minute needs to be recorded correctly.</p>
-            <button className="quiet-button" onClick={() => setView('history')}>Explore your history <ArrowRight size={14} /></button>
-          </section>
-        )}
+        ) : view === 'insights' ? (
+          <InsightsPage sessions={sessions} intervals={intervals} now={now} />
+        ) : null}
       </main>
 
       {/* <footer className="app-footer">
