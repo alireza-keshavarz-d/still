@@ -268,3 +268,8 @@ kbd { display: inline-grid; min-width: 51px; height: 24px; place-items: center; 
 .daily-chart-window .daily-chart-column small{font-variant-numeric:tabular-nums}
 .chart-window-caption{display:flex;justify-content:space-between;gap:10px;margin-top:8px;color:#718076;font-size:8px;font-variant-numeric:tabular-nums}
 @media(max-width:560px){.daily-chart-window .daily-chart{gap:5px}.daily-chart-window .daily-chart-column{flex-basis:20px;width:20px}.chart-window-caption{font-size:7px}}
+
+/* Make the analytics chart genuinely draggable without selecting surrounding text. */
+.daily-chart-window{cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-y}
+.daily-chart-window.is-dragging{cursor:grabbing;scroll-behavior:auto}
+.daily-chart-window.is-dragging *{user-select:none;-webkit-user-select:none}
