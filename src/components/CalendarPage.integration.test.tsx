@@ -154,6 +154,7 @@ describe('CalendarPage regression integration', () => {
     ]);
     mocks.cancelSession.mockRejectedValueOnce('unexpected');
     render(<CalendarPage onStartPlannedSession={vi.fn()} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'agenda' }));
     expect(await screen.findByText('Future activity')).toBeTruthy();
     expect(screen.queryByText('Past activity')).toBeNull();
     const card = screen.getByText('Future activity').closest('article') as HTMLElement;
