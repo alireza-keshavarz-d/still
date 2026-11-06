@@ -110,7 +110,7 @@ describe('CalendarPage regression integration', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save sequence' }));
     expect((await screen.findByRole('alert')).textContent).toContain('Enter a plan name');
     fireEvent.change(screen.getByLabelText('PLAN NAME'), { target: { value: 'Biology revision' } });
-    fireEvent.change(screen.getByLabelText('FIRST ACTIVITY DATE'), { target: { value: '2026-11-05' } });
+    fireEvent.change(screen.getByLabelText('FIRST ACTIVITY DATE'), { target: { value: '۱۴۰۵/۰۸/۱۴' } });
     fireEvent.change(screen.getByPlaceholderText('Read the chapter'), { target: { value: 'Read chapter' } });
     fireEvent.click(screen.getByRole('button', { name: 'Add activity' }));
     fireEvent.change(screen.getByPlaceholderText('Practice questions'), { target: { value: 'Practice' } });

@@ -33,7 +33,7 @@ describe('CalendarPage', () => {
     render(<CalendarPage onStartPlannedSession={vi.fn()} />);
     await screen.findByText('Calendar');
     fireEvent.click(screen.getByRole('button', { name: 'week' }));
-    expect(screen.getByText(/Week of/)).toBeTruthy();
+    expect(screen.getByText(/هفتهٔ/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'agenda' }));
     expect(screen.getByText('Upcoming activities')).toBeTruthy();
   });
