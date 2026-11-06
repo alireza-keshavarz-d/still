@@ -24,9 +24,7 @@ const TIME_ZONE = DEFAULT_TIME_ZONE;
 const CHECKPOINT_INTERVAL_MS = 30_000;
 
 function dateLabel(timestamp: number): string {
-  return new Intl.DateTimeFormat('en', {
-    timeZone: TIME_ZONE, weekday: 'long', month: 'long', day: 'numeric'
-  }).format(new Date(timestamp));
+  return formatDateLabel(getDateKey(timestamp, TIME_ZONE), TIME_ZONE);
 }
 
 function statusLabel(status: StudySession['status']): string {

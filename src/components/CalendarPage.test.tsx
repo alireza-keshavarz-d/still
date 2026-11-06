@@ -42,7 +42,7 @@ describe('CalendarPage', () => {
     render(<CalendarPage onStartPlannedSession={vi.fn()} />);
     fireEvent.click(await screen.findByRole('button', { name: /Plan session/ }));
     fireEvent.change(screen.getByLabelText('ACTIVITY'), { target: { value: 'Review chapter' } });
-    fireEvent.change(screen.getByLabelText('DATE'), { target: { value: '2026-11-05' } });
+    fireEvent.change(screen.getByLabelText('DATE'), { target: { value: '۱۴۰۵/۰۸/۱۴' } });
     fireEvent.change(screen.getByLabelText('TIME (OPTIONAL)'), { target: { value: '10:00' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save planned session' }));
     await waitFor(() => expect(mocks.createPlannedSession).toHaveBeenCalledWith(expect.objectContaining({

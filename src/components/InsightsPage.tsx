@@ -3,6 +3,7 @@ import { Activity, CalendarDays, Clock3, Flame, Target, TrendingUp } from 'lucid
 import { buildStudyAnalytics, type AnalyticsRange } from '../domain/analytics';
 import { formatCompactDuration } from '../domain/time';
 import type { StudyInterval, StudySession } from '../domain/types';
+import { formatJalaliDate, formatJalaliDay } from '../domain/jalali';
 interface InsightsPageProps { sessions: StudySession[]; intervals: StudyInterval[]; now: number }
 const ranges: { value: AnalyticsRange; label: string }[] = [
   { value: '7d', label: '7 days' }, { value: '30d', label: '30 days' }, { value: '90d', label: '90 days' }, { value: 'all', label: 'All time' }
@@ -52,9 +53,9 @@ function InsightsPage({ sessions, intervals, now }: InsightsPageProps) {
     {data.sessionCount === 0 ? <div className="insights-empty"><div className="insights-orb"><TrendingUp size={22} /></div><h2>Your patterns start here.</h2><p>Complete a few focus sessions and this space will show how your study time is distributed.</p></div> : <>
       <section className="insight-panel"><div className="insight-panel-heading"><div><div className="eyebrow">CONSISTENCY</div><h2>Daily focus</h2></div><span>{data.activeDays} active days</span></div>
         <div className="daily-chart-window" ref={chartScrollRef} role="region" tabIndex={0} aria-label="Daily focus chart. Drag horizontally or scroll to explore dates." onPointerDown={handleChartPointerDown} onPointerMove={handleChartPointerMove} onPointerUp={stopChartDrag} onPointerCancel={stopChartDrag} onLostPointerCapture={stopChartDrag} onDragStart={(event) => event.preventDefault()}>
-          <div className="daily-chart">{data.daily.map((day) => <div className="daily-chart-column" key={day.date} title={day.date + ': ' + formatCompactDuration(day.durationMs)}><div className="daily-chart-track"><span style={{ height: (day.durationMs / maxDay * 100) + '%' }} /></div><small>{day.date.slice(-2)}</small></div>)}</div>
+          <div className="daily-chart">{data.daily.map((day) => <div className="daily-chart-column" key={day.date} title={formatJalaliDate(day.date) + ': ' + formatCompactDuration(day.durationMs)}><div className="daily-chart-track"><span style={{ height: (day.durationMs / maxDay * 100) + '%' }} /></div><small>{formatJalaliDay(day.date)}</small></div>)}</div>
         </div>
-        <div className="chart-window-caption"><span>{data.daily[0]?.date ?? '—'} – {data.daily[data.daily.length - 1]?.date ?? '—'}</span><span>{data.daily.length > 30 ? 'Scroll horizontally to explore' : `${data.daily.length}-day view`}</span></div>
+        <div className="chart-window-caption"><span>{data.daily[0] ? formatJalaliDate(data.daily[0].date) : '—'} – {data.daily[data.daily.length - 1] ? formatJalaliDate(data.daily[data.daily.length - 1].date) : '—'}</span><span>{data.daily.length > 30 ? 'Scroll horizontally to explore' : `${data.daily.length}-day view`}</span></div>
         <div className="chart-legend"><span>LOW</span><span>HIGH</span></div>
       </section>
       <div className="insights-two-column">
@@ -62,7 +63,7 @@ function InsightsPage({ sessions, intervals, now }: InsightsPageProps) {
           <div className="activity-breakdown">{data.activities.map((activity) => <div className="activity-breakdown-row" key={activity.activityId}><div className="activity-breakdown-copy"><strong>{activity.title}</strong><span>{activity.sessionCount} {activity.sessionCount === 1 ? 'session' : 'sessions'}</span></div><div className="activity-breakdown-bar"><span style={{ width: (activity.durationMs / maxActivity * 100) + '%' }} /></div><b>{formatCompactDuration(activity.durationMs)}</b></div>)}</div>
         </section>
         <section className="insight-panel"><div className="insight-panel-heading"><div><div className="eyebrow">YOUR RECORDS</div><h2>Highlights</h2></div><TrendingUp size={16} /></div>
-          <div className="insight-highlights"><div><span>Longest focus day</span><strong>{data.bestDay ? formatCompactDuration(data.bestDay.durationMs) : '—'}</strong><small>{data.bestDay?.date ?? 'No data yet'}</small></div>
+          <div className="insight-highlights"><div><span>Longest focus day</span><strong>{data.bestDay ? formatCompactDuration(data.bestDay.durationMs) : '—'}</strong><small>{data.bestDay ? formatJalaliDate(data.bestDay.date) : 'No data yet'}</small></div>
             <div><span>Longest session</span><strong>{formatCompactDuration(data.longestSessionMs)}</strong><small>Single session record</small></div>
             <div><span>Best streak</span><strong>{data.longestStreak} days</strong><small>Longest run of active days</small></div>
             <div><span>Average session</span><strong>{formatCompactDuration(data.averageSessionDurationMs)}</strong><small>Across {data.sessionCount} sessions</small></div>
