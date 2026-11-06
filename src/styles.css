@@ -296,3 +296,62 @@ kbd { display: inline-grid; min-width: 51px; height: 24px; place-items: center; 
 
 /* Saturday is the first (rightmost) day in the Jalali calendar. */
 .calendar-grid,.calendar-week-days{direction:rtl}
+
+/* Improve readability of Persian calendar labels and Jalali numerals. */
+:root {
+  --persian-font-family: "Vazirmatn", "Noto Sans Arabic", Tahoma, "Segoe UI", sans-serif;
+}
+.jalali-date-picker,
+.calendar-grid,
+.calendar-week-days,
+.calendar-month-head h3 {
+  font-family: var(--persian-font-family);
+  font-synthesis: none;
+}
+.jalali-date-input-row input {
+  color: #f0f5f0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.jalali-date-month strong,
+.calendar-month-head h3 {
+  color: #edf4ed;
+  font-size: 15px;
+  font-weight: 600;
+}
+.jalali-weekday,
+.calendar-weekday {
+  color: #a7b8aa;
+  font-size: 12px;
+  font-weight: 600;
+}
+.jalali-day,
+.calendar-day {
+  color: #e0e9e1;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: lining-nums;
+}
+.jalali-day.outside,
+.calendar-day.outside {
+  color: #87968a;
+}
+.jalali-date-footer {
+  color: #d0ddd2;
+  font-size: 12px;
+  font-weight: 500;
+}
+.jalali-date-footer button {
+  font-size: 12px;
+  font-weight: 600;
+}
+.calendar-week-days small {
+  color: #b3c2b5;
+  font-size: 12px;
+  font-weight: 500;
+}
+.calendar-week-days strong {
+  font-size: 19px;
+  font-weight: 600;
+}
