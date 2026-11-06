@@ -118,7 +118,7 @@ export default function CalendarPage({ onStartPlannedSession, completedSessionTi
       {viewMode === 'month' && <div className="calendar-month">
         <div className="calendar-month-head"><button aria-label="Previous month" onClick={() => { const next = addJalaliMonths(month, -1); setMonth(next); setSelected(monthStart(next)); }}><ChevronLeft size={17}/></button><h3>{formatJalaliMonthTitle(month)}</h3><button aria-label="Next month" onClick={() => { const next = addJalaliMonths(month, 1); setMonth(next); setSelected(monthStart(next)); }}><ChevronRight size={17}/></button></div>
         <div className="calendar-grid">{['ش','ی','د','س','چ','پ','ج'].map((day) => <span className="calendar-weekday" key={day}>{day}</span>)}
-          {days.map((day) => <button key={day} className={'calendar-day'+(day.slice(0,7)!==month?' outside':'')+(day===selected?' selected':'')+(day===today()?' today':'')} onClick={() => setSelected(day)}><span>{formatJalaliDay(day)}</span>{countFor(day)>0&&<i>{countFor(day)}</i>}</button>)}
+          {days.map((day) => <button key={day} className={'calendar-day'+(jalaliMonthKey(day)!==month?' outside':'')+(day===selected?' selected':'')+(day===today()?' today':'')} onClick={() => { setSelected(day); setMonth(jalaliMonthKey(day)); }}><span>{formatJalaliDay(day)}</span>{countFor(day)>0&&<i>{countFor(day)}</i>}</button>)}
         </div>
         <button className="calendar-today" onClick={() => { setSelected(today()); setMonth(jalaliMonthKey(today())); }}>Jump to today</button>
       </div>}
