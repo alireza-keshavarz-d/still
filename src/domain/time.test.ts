@@ -57,8 +57,8 @@ describe('Tehran time accounting', () => {
     const instant = Date.UTC(2026, 10, 3, 20, 5, 9);
     expect(formatClock(instant, 'UTC')).toBe('20:05:09');
     expect(formatClock(instant, 'Asia/Tehran')).toBe('23:35:09');
-    expect(formatDateLabel('2026-11-04', 'UTC')).toBe('Wednesday, November 4');
-    expect(formatDateLabel('2026-11-04', 'Asia/Tehran')).toBe('Wednesday, November 4');
+    expect(formatDateLabel('2026-11-04', 'UTC')).toContain('آبان');
+    expect(formatDateLabel('2026-11-04', 'Asia/Tehran')).toContain('چهارشنبه');
   });
 });
 

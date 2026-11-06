@@ -46,7 +46,7 @@ describe('CalendarPage regression integration', () => {
     render(<CalendarPage onStartPlannedSession={vi.fn()} />);
     await screen.findByText('Calendar');
     fireEvent.click(screen.getByRole('button', { name: 'week' }));
-    expect(screen.getByText(/Week of/)).toBeTruthy();
+    expect(screen.getByText(/هفتهٔ/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Next week' }));
     fireEvent.click(screen.getByRole('button', { name: 'Previous week' }));
     fireEvent.click(screen.getByRole('button', { name: 'agenda' }));
@@ -72,7 +72,7 @@ describe('CalendarPage regression integration', () => {
     render(<CalendarPage onStartPlannedSession={vi.fn()} />);
     fireEvent.click(await screen.findByRole('button', { name: /Plan session/ }));
     fireEvent.change(screen.getByLabelText('ACTIVITY'), { target: { value: 'Review chapter' } });
-    fireEvent.change(screen.getByLabelText('DATE'), { target: { value: '2026-11-05' } });
+    fireEvent.change(screen.getByLabelText('DATE'), { target: { value: '۱۴۰۵/۰۸/۱۴' } });
     fireEvent.change(screen.getByLabelText('TIME (OPTIONAL)'), { target: { value: '10:00' } });
     fireEvent.change(screen.getByLabelText('DURATION (OPTIONAL)'), { target: { value: '45' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save planned session' }));
@@ -110,7 +110,7 @@ describe('CalendarPage regression integration', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save sequence' }));
     expect((await screen.findByRole('alert')).textContent).toContain('Enter a plan name');
     fireEvent.change(screen.getByLabelText('PLAN NAME'), { target: { value: 'Biology revision' } });
-    fireEvent.change(screen.getByLabelText('FIRST ACTIVITY DATE'), { target: { value: '2026-11-05' } });
+    fireEvent.change(screen.getByLabelText('FIRST ACTIVITY DATE'), { target: { value: '۱۴۰۵/۰۸/۱۴' } });
     fireEvent.change(screen.getByPlaceholderText('Read the chapter'), { target: { value: 'Read chapter' } });
     fireEvent.click(screen.getByRole('button', { name: 'Add activity' }));
     fireEvent.change(screen.getByPlaceholderText('Practice questions'), { target: { value: 'Practice' } });
@@ -129,7 +129,7 @@ describe('CalendarPage regression integration', () => {
     ]);
     const start = vi.fn().mockResolvedValue(undefined);
     vi.spyOn(window, 'prompt').mockReturnValueOnce('Renamed').mockReturnValueOnce('09:30')
-      .mockReturnValueOnce('2026-11-12').mockReturnValueOnce('1');
+      .mockReturnValueOnce('۱۴۰۵/۰۸/۲۱').mockReturnValueOnce('1');
     vi.spyOn(window, 'confirm').mockReturnValue(true);
     render(<CalendarPage onStartPlannedSession={start} />);
     expect(await screen.findByText('IN PROGRESS')).toBeTruthy();

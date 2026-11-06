@@ -126,7 +126,7 @@ export function formatClock(timestamp: number, timeZone: string): string {
 
 export function formatDateLabel(date: string, timeZone: string): string {
   const [year, month, day] = date.split('-').map(Number);
-  return new Intl.DateTimeFormat('en', {
-    timeZone, weekday: 'long', month: 'long', day: 'numeric'
+  return new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+    timeZone, calendar: 'persian', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   }).format(new Date(Date.UTC(year, month - 1, day, 12)));
 }
