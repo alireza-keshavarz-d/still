@@ -57,9 +57,9 @@ describe('buildStudyAnalytics edge cases', () => {
   it('returns a one-day all-time range for future-only sessions and ignores invalid duration', () => {
     const future = { ...sessions[0], id: 'future-only', startedAt: day('2026-11-10') };
     const result = buildStudyAnalytics([future], [], 'all', day('2026-11-06'));
-    expect(result.startDate).toBe('2026-11-10');
+    expect(result.startDate).toBe('2026-11-06');
     expect(result.endDate).toBe('2026-11-06');
-    expect(result.daily).toEqual([]);
+    expect(result.daily).toEqual([{ date: '2026-11-06', durationMs: 0, sessionCount: 0 }]);
     expect(result.sessionCount).toBe(0);
     expect(result.activities).toEqual([]);
     expect(result.averageDailyDurationMs).toBe(0);
