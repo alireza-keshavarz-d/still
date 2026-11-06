@@ -26,14 +26,14 @@ function InsightsPage({ sessions, intervals, now }: InsightsPageProps) {
     chart.setPointerCapture(event.pointerId);
     chart.classList.add('is-dragging');
   };
-  const handleChartPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+  const handleChartPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const drag = chartDragRef.current;
     const chart = chartScrollRef.current;
     if (!drag || !chart || drag.pointerId !== event.pointerId) return;
     chart.scrollLeft = drag.startScrollLeft - (event.clientX - drag.startX);
     if (Math.abs(event.clientX - drag.startX) > 3) event.preventDefault();
   };
-  const stopChartDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+  const stopChartDrag = (event: PointerEvent<HTMLDivElement>) => {
     const chart = chartScrollRef.current;
     if (chart?.hasPointerCapture(event.pointerId)) chart.releasePointerCapture(event.pointerId);
     chart?.classList.remove('is-dragging');
