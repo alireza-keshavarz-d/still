@@ -10,6 +10,7 @@ const ranges: { value: AnalyticsRange; label: string }[] = [
 function InsightsPage({ sessions, intervals, now }: InsightsPageProps) {
   const [range, setRange] = useState<AnalyticsRange>('30d');
   const chartScrollRef = useRef<HTMLDivElement>(null);
+  const chartDragRef = useRef<{ pointerId: number; startX: number; startScrollLeft: number } | null>(null);
   const data = useMemo(() => buildStudyAnalytics(sessions, intervals, range, now), [sessions, intervals, range, now]);
   const maxDay = Math.max(1, ...data.daily.map((day) => day.durationMs));
   useEffect(() => {
@@ -17,6 +18,27 @@ function InsightsPage({ sessions, intervals, now }: InsightsPageProps) {
     if (chart) chart.scrollLeft = chart.scrollWidth;
   }, [range, data.daily.length]);
   const maxActivity = Math.max(1, ...data.activities.map((activity) => activity.durationMs));
+  const handleChartPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    const chart = chartScrollRef.current;
+    if (!chart) return;
+    chartDragRef.current = { pointerId: event.pointerId, startX: event.clientX, startScrollLeft: chart.scrollLeft };
+    chart.setPointerCapture(event.pointerId);
+    chart.classList.add('is-dragging');
+  };
+  const handleChartPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = chartDragRef.current;
+    const chart = chartScrollRef.current;
+    if (!drag || !chart || drag.pointerId !== event.pointerId) return;
+    chart.scrollLeft = drag.startScrollLeft - (event.clientX - drag.startX);
+    if (Math.abs(event.clientX - drag.startX) > 3) event.preventDefault();
+  };
+  const stopChartDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const chart = chartScrollRef.current;
+    if (chart?.hasPointerCapture(event.pointerId)) chart.releasePointerCapture(event.pointerId);
+    chart?.classList.remove('is-dragging');
+    if (chartDragRef.current?.pointerId === event.pointerId) chartDragRef.current = null;
+  };
   return <section className="insights-page" aria-label="Study analytics">
     <div className="insights-toolbar"><div><div className="eyebrow">YOUR STUDY PATTERNS</div><p>Built from saved focus intervals · Asia/Tehran</p></div>
       <div className="insights-range" role="group" aria-label="Analytics date range">{ranges.map((item) => <button key={item.value} className={range === item.value ? 'active' : ''} aria-pressed={range === item.value} onClick={() => setRange(item.value)}>{item.label}</button>)}</div>
@@ -29,7 +51,7 @@ function InsightsPage({ sessions, intervals, now }: InsightsPageProps) {
     </div>
     {data.sessionCount === 0 ? <div className="insights-empty"><div className="insights-orb"><TrendingUp size={22} /></div><h2>Your patterns start here.</h2><p>Complete a few focus sessions and this space will show how your study time is distributed.</p></div> : <>
       <section className="insight-panel"><div className="insight-panel-heading"><div><div className="eyebrow">CONSISTENCY</div><h2>Daily focus</h2></div><span>{data.activeDays} active days</span></div>
-        <div className="daily-chart-window" ref={chartScrollRef} role="region" tabIndex={0} aria-label="Daily focus chart. Scroll horizontally to explore dates.">
+        <div className="daily-chart-window" ref={chartScrollRef} role="region" tabIndex={0} aria-label="Daily focus chart. Drag horizontally or scroll to explore dates." onPointerDown={handleChartPointerDown} onPointerMove={handleChartPointerMove} onPointerUp={stopChartDrag} onPointerCancel={stopChartDrag} onLostPointerCapture={stopChartDrag} onDragStart={(event) => event.preventDefault()}>
           <div className="daily-chart">{data.daily.map((day) => <div className="daily-chart-column" key={day.date} title={day.date + ': ' + formatCompactDuration(day.durationMs)}><div className="daily-chart-track"><span style={{ height: (day.durationMs / maxDay * 100) + '%' }} /></div><small>{day.date.slice(-2)}</small></div>)}</div>
         </div>
         <div className="chart-window-caption"><span>{data.daily[0]?.date ?? '—'} – {data.daily[data.daily.length - 1]?.date ?? '—'}</span><span>{data.daily.length > 30 ? 'Scroll horizontally to explore' : `${data.daily.length}-day view`}</span></div>
