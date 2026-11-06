@@ -68,6 +68,8 @@ describe('Jalali calendar navigation and formatting', () => {
       expect(() => jalaliMonthGridDates(month)).toThrow('Month is invalid.');
     }
     expect(() => addJalaliMonths('1405-13', 1)).toThrow('Month is invalid.');
+    expect(() => addJalaliMonths('invalid', 1)).toThrow('Month must use YYYY-MM format.');
+    expect(() => addJalaliMonths('1405-01', -24_000)).toThrow('Month is outside the supported range.');
     expect(() => addJalaliMonths('1405-12', 24_000)).toThrow('Month is outside the supported range.');
   });
 
