@@ -32,6 +32,9 @@ describe('CalendarPage', () => {
   it('switches between month, week and agenda views', async () => {
     render(<CalendarPage onStartPlannedSession={vi.fn()} />);
     await screen.findByText('Calendar');
+    const selectedDay = document.querySelector('.calendar-day.selected');
+    expect(selectedDay).toBeTruthy();
+    expect(selectedDay?.classList.contains('outside')).toBe(false);
     fireEvent.click(screen.getByRole('button', { name: 'week' }));
     expect(screen.getByText(/هفتهٔ/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'agenda' }));

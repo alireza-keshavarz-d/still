@@ -77,6 +77,9 @@ describe('Jalali calendar navigation and formatting', () => {
     expect(formatJalaliDay('2026-11-06')).toBe('۱۵');
     expect(formatJalaliMonthTitle('1405-08')).toContain('آبان');
     expect(formatJalaliWeekday('2026-11-06')).toBe('جمعه');
+    expect(() => formatJalaliWeekday('invalid')).toThrow('A valid Gregorian date is required.');
+    expect(() => formatJalaliMonthTitle('1405-13')).toThrow('A valid Jalali date is required.');
+    expect(() => jalaliMonthKey('invalid')).toThrow('A valid Gregorian date is required.');
   });
 });
 
