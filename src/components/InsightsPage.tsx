@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { Activity, CalendarDays, Clock3, Flame, Target, TrendingUp } from 'lucide-react';
 import { buildStudyAnalytics, type AnalyticsRange } from '../domain/analytics';
 import { formatCompactDuration } from '../domain/time';
@@ -18,7 +18,7 @@ function InsightsPage({ sessions, intervals, now }: InsightsPageProps) {
     if (chart) chart.scrollLeft = chart.scrollWidth;
   }, [range, data.daily.length]);
   const maxActivity = Math.max(1, ...data.activities.map((activity) => activity.durationMs));
-  const handleChartPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+  const handleChartPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     const chart = chartScrollRef.current;
     if (!chart) return;
